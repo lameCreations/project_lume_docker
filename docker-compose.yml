@@ -1,0 +1,10 @@
+version: '3.8'
+
+services:
+  project_lume:
+    image: lamecreations/project_lume:latest
+    ports:
+      - "9000:9000"
+      - "514:514/udp"
+      - "1514:1514/udp"
+    restart: unless-stopped
