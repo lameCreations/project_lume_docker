@@ -1,4 +1,4 @@
-# project_lume_docker
+# Project Lume the SIEM you didn't know you couldn't live without.  
 Docker Compose file for project lume
 
 To install project lume make sure you have docker installed on your computer, for mac and windows, I use docker desktop.  Linux as a general rule natively supports docker.  
