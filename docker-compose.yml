@@ -1,36 +1,34 @@
-version: '3.8'
-
 services:
-  project_lume:
-    image: lamecreations/project_lume:latest
-    container_name: project-lume
+  lume-engine:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: project-lume-core
     restart: unless-stopped
     ports:
-      - "9000:9000"          # Web UI and REST API
-      - "514:514/udp"        # Standard Syslog (UDP)
-      - "514:514/tcp"        # Standard Syslog (TCP)
-      - "1514:1514/udp"      # High-port Syslog (UDP - non-root friendly)
-      - "1514:1514/tcp"      # High-port Syslog (TCP - non-root friendly)
+      - "9000:9000"
+      - "514:514/udp"
+      - "514:514/tcp"
+      - "1514:1514/udp"
+      - "1514:1514/tcp"
     environment:
       - PORT=9000
       - PYTHONUNBUFFERED=1
     extra_hosts:
-      # Allows Lume inside Docker to talk to Ollama running on the host machine
+      # Allows the container to communicate with host services like Ollama (http://host.docker.internal:11434)
       - "host.docker.internal:host-gateway"
     volumes:
-      # Persistent DuckDB database, CIM overrides, and credentials
-      - lume_data:/app/data_vaults
-      # Host folder to drag-and-drop log files for automatic background ingestion
-      - ./dropzone:/app/dropzone
-      # Saved custom dashboards and studio workspaces
-      - lume_workspaces:/app/web/workspaces
+      # Persistent DuckDB database, SQLite chat history, and configuration files
+      - ./data_vaults:/app/data_vaults
+      # The Smart Dropzone Mount for automatic ingestion of log and alert files
+      - ./Dropzone_Inputs:/app/dropzone
+      # Persistent network profile maps and workspace reports
+      - ./web/workspaces:/app/web/workspaces
+      # Live Wiki mount so documentation updates reflect immediately
+      - ./Wiki:/app/Wiki:ro
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/settings/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
       start_period: 15s
-
-volumes:
-  lume_data:
-  lume_workspaces:
