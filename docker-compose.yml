@@ -1,8 +1,8 @@
 services:
   lume-engine:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    # Points to your Docker Hub image built and pushed by package_release.sh / ps1
+    # Docker automatically pulls linux/arm64 on Macs and linux/amd64 on Ubuntu/PCs
+    image: lamecreations/project_lume:latest
     container_name: project-lume-core
     restart: unless-stopped
     ports:
@@ -15,20 +15,19 @@ services:
       - PORT=9000
       - PYTHONUNBUFFERED=1
     extra_hosts:
-      # Allows the container to communicate with host services like Ollama (http://host.docker.internal:11434)
+      # Allows connecting to host services like Ollama (http://host.docker.internal:11434)
+      # Essential for Ubuntu/Linux where host.docker.internal is not enabled by default
       - "host.docker.internal:host-gateway"
     volumes:
-      # Persistent DuckDB database, SQLite chat history, and configuration files
+      # Persistent DuckDB database, settings, and incident records
       - ./data_vaults:/app/data_vaults
-      # The Smart Dropzone Mount for automatic ingestion of log and alert files
+      # Ingestion Dropzone for PCAP, Syslog, Zeek TSV, EVTX, and CSV drops
       - ./Dropzone_Inputs:/app/dropzone
-      # Persistent network profile maps and workspace reports
-      - ./web/workspaces:/app/web/workspaces
-      # Live Wiki mount so documentation updates reflect immediately
-      - ./Wiki:/app/Wiki:ro
+      # Persistent forensic workspaces and exported case briefs
+      - ./web_workspaces:/app/web/workspaces
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/settings/health')"]
       interval: 30s
       timeout: 5s
       retries: 3
-      start_period: 15s
+      start_period: 20s
