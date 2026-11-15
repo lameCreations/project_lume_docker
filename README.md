@@ -113,3 +113,15 @@ docker compose up -d
 <p align="center">
   <b>Project Lume</b> — <i>The SIEM you didn't know you couldn't live without.</i>
 </p>
+
+---
+
+## 💾 Instant Demo Data Cartridges (Zero-Index Evaluation)
+
+Want to see Project Lume perform deep forensic investigations and behavioral threat hunting without configuring a live syslog feed or waiting for logs to stream in?
+
+Project Lume treats datasets as **Data Cartridges** (`.parquet`). Because the underlying engine is DuckDB:
+- **No data ingestion pipeline or indexing lag:** Query multi-million-row datasets instantly.
+- **Add / Remove like USB cartridges:** Simply drop a `.parquet` file into `./Dropzone_Inputs/` to mount it into your instance, or delete it to unmount it.
+
+Check out the [Cartridges Catalog](cartridges/README.md) to download pre-packaged evaluation datasets (e.g., 30-day OT/ICS Baselines, BOTSv1 / BOTSv2 CTF scenarios).

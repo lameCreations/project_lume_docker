@@ -42,7 +42,8 @@ if hasattr(sys.stderr, "reconfigure"):
     sys.stderr.reconfigure(encoding="utf-8", errors="replace")
 
 # Server configuration
-DEFAULT_PORT = 8088
+# Port 8090 avoids collision with Splunk HEC listener (port 8088) in project-lume-core container
+DEFAULT_PORT = 8090
 SCRIPT_DIR = Path(__file__).resolve().parent
 
 # Docker repository definitions
@@ -210,6 +211,144 @@ input:focus, select:focus {
   background: linear-gradient(135deg, var(--accent-amber), #d97706);
   color: #fff; box-shadow: 0 4px 14px rgba(245, 158, 11, 0.3);
 }
+.btn-rose {
+  background: linear-gradient(135deg, var(--accent-rose), #be123c);
+  color: #fff; box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+}
+.btn-rose:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+/* Architecture Mode Visual Cards */
+.arch-card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.arch-card {
+  background: rgba(13, 18, 31, 0.7);
+  border: 2px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 18px 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+}
+.arch-card:hover {
+  border-color: rgba(99, 102, 241, 0.4);
+  background: rgba(18, 24, 42, 0.9);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.arch-card.selected {
+  border-color: #6366f1;
+  background: linear-gradient(180deg, rgba(99, 102, 241, 0.15) 0%, rgba(13, 18, 31, 0.9) 100%);
+  box-shadow: 0 0 20px rgba(99, 102, 241, 0.3), inset 0 0 12px rgba(99, 102, 241, 0.1);
+}
+.arch-card-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 3px 8px;
+  border-radius: 6px;
+  letter-spacing: 0.5px;
+}
+.arch-card-icon {
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+.arch-card-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 6px;
+}
+.arch-card-desc {
+  font-size: 12px;
+  color: var(--text-muted);
+  line-height: 1.45;
+  flex: 1;
+}
+
+/* Dynamic Fleet Node Builder Table */
+.node-builder-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 12px;
+}
+.node-builder-table th {
+  padding: 10px 8px;
+  color: var(--text-muted);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  text-align: left;
+}
+.node-builder-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  vertical-align: middle;
+}
+.node-builder-table input[type="text"],
+.node-builder-table select {
+  font-size: 12px;
+  padding: 7px 10px;
+}
+.node-row:hover {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+/* Collapsible Advanced Settings Accordion */
+details.collapsible-card {
+  background: rgba(13, 18, 31, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  margin-top: 18px;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.2s ease;
+}
+details.collapsible-card[open] {
+  border-color: rgba(99, 102, 241, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+details.collapsible-card > summary {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #e2e8f0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  user-select: none;
+  background: rgba(255, 255, 255, 0.02);
+}
+details.collapsible-card > summary::-webkit-details-marker {
+  display: none;
+}
+details.collapsible-card > summary::after {
+  content: "▼";
+  font-size: 10px;
+  color: var(--text-muted);
+  transition: transform 0.2s ease;
+}
+details.collapsible-card[open] > summary::after {
+  transform: rotate(180deg);
+  color: var(--accent-cyan);
+}
+details.collapsible-card .collapsible-body {
+  padding: 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
 .template-bar {
   display: flex; align-items: center; justify-content: space-between;
   background: rgba(18, 24, 38, 0.85); border: 1px solid rgba(99, 102, 241, 0.3);
@@ -358,6 +497,94 @@ pre {
   0%, 100% { box-shadow: 0 0 15px rgba(16, 185, 129, 0.4); }
   50% { box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), 0 0 10px rgba(6, 182, 212, 0.6); }
 }
+
+/* Phase 1 & 2: Quick Personas, Node Modes & Dynamic Visual Topology Graph */
+.persona-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+.persona-card {
+  background: rgba(18, 24, 38, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+}
+.persona-card:hover {
+  border-color: var(--accent-cyan);
+  transform: translateY(-2px);
+  background: rgba(24, 32, 52, 0.85);
+  box-shadow: 0 8px 24px rgba(6, 182, 212, 0.15);
+}
+.persona-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 8px;
+}
+.persona-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.persona-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+.mode-toggle-btn {
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s ease;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.mode-toggle-prod {
+  background: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border-color: rgba(16, 185, 129, 0.4);
+}
+.mode-toggle-prod:hover {
+  background: rgba(16, 185, 129, 0.25);
+  border-color: rgba(16, 185, 129, 0.6);
+}
+.mode-toggle-demo {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border-color: rgba(245, 158, 11, 0.4);
+}
+.mode-toggle-demo:hover {
+  background: rgba(245, 158, 11, 0.25);
+  border-color: rgba(245, 158, 11, 0.6);
+}
+.topology-map-wrapper {
+  margin-top: 18px;
+  background: rgba(13, 18, 31, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius);
+  padding: 18px;
+}
 </style>
 </head>
 <body style="padding-bottom: 75px;">
@@ -416,53 +643,7 @@ pre {
           </div>
 
           <div class="node-progress-grid" id="node_progress_grid">
-            <!-- Node 24 (PC) -->
-            <div class="node-progress-card" id="card_node_24">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <span style="font-weight: 700; font-size: 13px; color: #fff;">192.168.88.24</span>
-                <span class="node-badge" style="background: rgba(99,102,241,0.2); color: #a5b4fc;" id="badge_node_24">Coordinator</span>
-              </div>
-              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Windows PC Operations (24GB cap)</div>
-              <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4;" id="status_node_24">
-                <span>⚪</span> <span>Standing by for setup</span>
-              </div>
-            </div>
-
-            <!-- Node 25 (Mac) -->
-            <div class="node-progress-card" id="card_node_25">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <span style="font-weight: 700; font-size: 13px; color: #fff;">192.168.88.25</span>
-                <span class="node-badge" style="background: rgba(16,185,129,0.2); color: #34d399;" id="badge_node_25">Worker</span>
-              </div>
-              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">MacBook Pro Lab Core (16GB cap)</div>
-              <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4;" id="status_node_25">
-                <span>⚪</span> <span>Standing by for setup</span>
-              </div>
-            </div>
-
-            <!-- Node 44 (Ubuntu 1) -->
-            <div class="node-progress-card" id="card_node_44">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <span style="font-weight: 700; font-size: 13px; color: #fff;">192.168.88.44</span>
-                <span class="node-badge" style="background: rgba(139,92,246,0.2); color: #c084fc;" id="badge_node_44">Worker + Scanner</span>
-              </div>
-              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Ubuntu Demo 1 (2600M cap)</div>
-              <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4;" id="status_node_44">
-                <span>⚪</span> <span>Standing by for setup</span>
-              </div>
-            </div>
-
-            <!-- Node 15 (Ubuntu 2) -->
-            <div class="node-progress-card" id="card_node_15">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px;">
-                <span style="font-weight: 700; font-size: 13px; color: #fff;">192.168.88.15</span>
-                <span class="node-badge" style="background: rgba(16,185,129,0.2); color: #34d399;" id="badge_node_15">Worker + Zeek OT</span>
-              </div>
-              <div style="font-size: 11px; color: #94a3b8; margin-bottom: 6px;">Ubuntu Demo 2 (12GB cap)</div>
-              <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4;" id="status_node_15">
-                <span>⚪</span> <span>Standing by for setup</span>
-              </div>
-            </div>
+            <!-- Dynamically populated from fleetNodes configured in Tab 1 -->
           </div>
         </div>
 
@@ -517,11 +698,12 @@ pre {
         </div>
 
         <!-- Action Buttons -->
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08);">
-          <div style="font-size: 11px; color: #94a3b8;">
-            Targets: <b>4 Fleet Nodes</b> (Windows Coordinator, Mac Worker, Ubuntu Demo 1, Ubuntu Demo 2 with Zeek OT)
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); flex-wrap: wrap; gap: 10px;">
+          <div style="font-size: 11px; color: #94a3b8;" id="orchestration_targets_summary">
+            Targets: <b>Configured Fleet Nodes</b>
           </div>
-          <div style="display: flex; gap: 10px;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button class="btn btn-cyan" id="btn_run_preflight" onclick="runPreflightInspection()">🔍 Pre-Flight System & Port Probe</button>
             <button class="btn btn-secondary" onclick="closeOrchestrationModal()">Close Window</button>
             <button class="btn btn-emerald pulse-btn" id="btn_run_orchestration" onclick="executeFleetOrchestration()">🚀 Execute Orchestration Pipeline</button>
           </div>
@@ -531,183 +713,236 @@ pre {
   </div>
 
   <nav class="tabs">
-    <button class="tab-btn active" onclick="switchTab('topology')">🏗️ 1. Architecture & IPs</button>
-    <button class="tab-btn" onclick="switchTab('storage')">💾 2. Storage & Lifecycle</button>
-    <button class="tab-btn" onclick="switchTab('telemetry')">🛡️ 3. Sensors & Suricata</button>
-    <button class="tab-btn" onclick="switchTab('ai_vault')">🤖 4. AI Keys & Vaults</button>
-    <button class="tab-btn" onclick="switchTab('compose')">📄 5. Generated Compose</button>
-    <button class="tab-btn" onclick="switchTab('airgap')">📦 6. Sneakernet & Deploy</button>
+    <button class="tab-btn active" id="tab_btn_topology" onclick="switchTab('topology', this)">🏗️ 1. Architecture & IPs</button>
+    <button class="tab-btn" id="tab_btn_storage" onclick="switchTab('storage', this)">💾 2. Storage & Lifecycle</button>
+    <button class="tab-btn" id="tab_btn_telemetry" onclick="switchTab('telemetry', this)">🛡️ 3. Sensors & Suricata</button>
+    <button class="tab-btn" id="tab_btn_ai_vault" onclick="switchTab('ai_vault', this)">🤖 4. AI Keys & Vaults</button>
+    <button class="tab-btn" id="tab_btn_compose" onclick="switchTab('compose', this)">📄 5. Generated Compose</button>
+    <button class="tab-btn" id="tab_btn_airgap" onclick="switchTab('airgap', this)">📦 6. Sneakernet & Deploy</button>
+    <button class="tab-btn" id="tab_btn_update" onclick="switchTab('update', this)">🔄 7. Fleet Update</button>
+    <button class="tab-btn" id="tab_btn_remove" onclick="switchTab('remove', this)">🗑️ 8. Fleet Decommission</button>
   </nav>
 
   <!-- TAB 1: TOPOLOGY & IPS -->
   <div id="tab-topology" class="tab-panel active">
+    <!-- 1-CLICK QUICK SETUP PERSONAS (PHASE 2) -->
+    <div style="margin-bottom: 22px;">
+      <div style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent-cyan); font-weight: 700; margin-bottom: 10px; display: flex; align-items: center; gap: 6px;">
+        <span>⚡</span> <span>1-Click Deployment Personas</span>
+      </div>
+      <div class="persona-grid">
+        <div class="persona-card" onclick="applyPersonaPreset('enterprise_prod')" title="Load Hardened Enterprise Production Configuration">
+          <div class="persona-badge" style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4);">
+            🛡️ Enterprise Sovereign
+          </div>
+          <div class="persona-title">Enterprise Production Fleet</div>
+          <div class="persona-desc">Hardened multi-node deployment. Production Mode locked, 16GB RAM limit, Universal Forwarders active, strict storage watermark.</div>
+        </div>
+
+        <div class="persona-card" onclick="applyPersonaPreset('demo_lab')" title="Load Training & Demonstration Lab Configuration">
+          <div class="persona-badge" style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4);">
+            🧪 POC & Demo Lab
+          </div>
+          <div class="persona-title">Customer POC & Training Lab</div>
+          <div class="persona-desc">Instant evaluation environment. Demo Mode ON, synthetic anomaly pivot generation active, BOTS showcase seeding unlocked.</div>
+        </div>
+
+        <div class="persona-card" onclick="applyPersonaPreset('tactical_edge')" title="Load Constrained Industrial OT Sensor Configuration">
+          <div class="persona-badge" style="background: rgba(6, 182, 212, 0.2); color: #22d3ee; border: 1px solid rgba(6, 182, 212, 0.4);">
+            ⚡ Tactical Edge Sensor
+          </div>
+          <div class="persona-title">Tactical OT / SCADA Edge</div>
+          <div class="persona-desc">Constrained industrial edge forwarder. 2.6GB memory cap, Zeek + Suricata ICS/SCADA rules, Universal Forwarder to core.</div>
+        </div>
+      </div>
+    </div>
+    <!-- VISUAL ARCHITECTURE MODE SELECTOR (Replaces confusing dropdown) -->
     <div class="card">
       <div class="card-header">
-        <h2>🌐 Network Topology & Deployment Mode</h2>
-        <p>Specify where each container node will reside. This automatically binds API tokens, host gateways, and cross-node streams.</p>
+        <h2>🌐 Choose Your Deployment Architecture</h2>
+        <p>Select your deployment scale. Project Lume configures inter-container networking, ingest streams, and cluster coordination automatically.</p>
       </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Deployment Architecture</label>
-          <select id="deploy_mode" onchange="updateTopologyUI()">
-            <option value="distributed">Distributed (Recommended: Lume Core on Server, Sensors on Perimeter/SPAN)</option>
-            <option value="all_in_one">All-in-One (Core + Sensors + Scanner on single machine)</option>
-            <option value="cluster_coordinator">Multi-Node Cluster: Search Head / Coordinator</option>
-            <option value="cluster_worker">Multi-Node Cluster: Indexer / Worker Node</option>
-            <option value="sensors_only">Sensor Fleet Only (Export docker-compose for remote Zeek/Scanner nodes)</option>
-          </select>
-          <div class="helper">Configures standalone single-node, distributed sensors, or multi-node clustered federation.</div>
+
+      <!-- Hidden select to maintain full backwards-compatibility with template import/export -->
+      <select id="deploy_mode" style="display: none;" onchange="syncArchitectureCardsFromSelect()">
+        <option value="all_in_one">all_in_one</option>
+        <option value="server_sensor">server_sensor</option>
+        <option value="distributed" selected>distributed</option>
+        <option value="cluster_coordinator">cluster_coordinator</option>
+        <option value="cluster_worker">cluster_worker</option>
+        <option value="sensors_only">sensors_only</option>
+      </select>
+
+      <div class="arch-card-grid">
+        <div class="arch-card" id="card_mode_all_in_one" onclick="selectDeploymentMode('all_in_one')">
+          <span class="arch-card-badge" style="background: rgba(16,185,129,0.2); color: #34d399; border: 1px solid rgba(16,185,129,0.4);">⚡ Quick Trial</span>
+          <div class="arch-card-icon">💻</div>
+          <div class="arch-card-title">Single Machine (All-in-One)</div>
+          <div class="arch-card-desc">Run everything on your laptop or a single test server (Core SIEM + DuckDB engine). Ideal for testing or standalone incident response.</div>
         </div>
-        <div class="form-group">
-          <label>Friendly Node Name (User Defined)</label>
-          <input type="text" id="lume_node_name" value="Denver Operations Core" placeholder="e.g. Denver Security Operations Core">
-          <div class="helper">Human-friendly name shown across Cluster Topology, Federated Search, and Fleet Health.</div>
+
+        <div class="arch-card" id="card_mode_server_sensor" onclick="selectDeploymentMode('server_sensor')">
+          <span class="arch-card-badge" style="background: rgba(6,182,212,0.2); color: #22d3ee; border: 1px solid rgba(6,182,212,0.4);">🛡️ Standard 2-Node</span>
+          <div class="arch-card-icon">🌐</div>
+          <div class="arch-card-title">Server + Remote Sensor</div>
+          <div class="arch-card-desc">Lume Core SIEM on your main server, with a dedicated remote network sensor (Zeek/Suricata) sniffing on a switch SPAN or perimeter TAP.</div>
+        </div>
+
+        <div class="arch-card selected" id="card_mode_distributed" onclick="selectDeploymentMode('distributed')">
+          <span class="arch-card-badge" style="background: rgba(99,102,241,0.2); color: #818cf8; border: 1px solid rgba(99,102,241,0.4);">🏢 Enterprise Fleet</span>
+          <div class="arch-card-icon">🖥️</div>
+          <div class="arch-card-title">Custom Fleet / Multi-Node</div>
+          <div class="arch-card-desc">Multiple SIEM instances, secondary sensors, edge log throwers, and CVE vulnerability scanners forwarding across internal network tiers.</div>
         </div>
       </div>
 
-      <div class="grid-2" style="margin-top: 10px;">
+      <!-- Core SIEM Binding Fields -->
+      <div class="grid-2" style="margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);">
         <div class="form-group">
-          <label>Project Lume Core Host IP / FQDN</label>
-          <input type="text" id="lume_host_ip" value="192.168.88.44" placeholder="e.g. 192.168.88.44 or siem.corp.internal">
-          <div class="helper">The IP address where the main Project Lume web app and DuckDB engine run.</div>
+          <label>Friendly Core Name (Primary SIEM)</label>
+          <input type="text" id="lume_node_name" value="Primary Operations Core" placeholder="e.g. Primary Operations Core" oninput="syncPrimaryCoreFromInputs()">
+          <div class="helper">Shown across federated search, cluster topology, and health status.</div>
         </div>
         <div class="form-group">
           <label>Cross-Service Ingest Authorization Token (Shared Secret)</label>
           <input type="text" id="lume_token" value="LAME_SECRET_TOKEN_99">
-          <div class="helper">Used by Zeek sensors, Suricata, and Vulnerability Scanners to authenticate log batches into /api/v1/ingest/raw.</div>
+          <div class="helper">Used by Zeek sensors, log throwers, and vulnerability scanners to authenticate log batches into /api/v1/ingest/raw.</div>
         </div>
       </div>
 
-      <div class="grid-3" style="margin-top: 10px;">
+      <div class="grid-2" style="margin-top: 6px;">
+        <div class="form-group">
+          <label>Primary Project Lume Core Host IP / FQDN</label>
+          <input type="text" id="lume_host_ip" value="127.0.0.1" placeholder="e.g. 192.168.1.100 or 127.0.0.1" oninput="syncPrimaryCoreFromInputs()">
+          <div class="helper">The IP address of your primary Project Lume Core web app and DuckDB engine. Automatically sets Node 1 below.</div>
+        </div>
         <div class="form-group">
           <label>Project Lume Web Port</label>
-          <input type="number" id="lume_port" value="9000">
-        </div>
-        <div class="form-group">
-          <label>Syslog UDP Port (RFC 5424)</label>
-          <input type="number" id="syslog_port" value="514">
-        </div>
-        <div class="form-group">
-          <label>Secure TLS / OSQuery Port</label>
-          <input type="number" id="tls_ingest_port" value="1514">
+          <input type="number" id="lume_port" value="9000" oninput="syncPrimaryCoreFromInputs()">
+          <div class="helper">Standard web interface and REST ingest port (Default: 9000).</div>
         </div>
       </div>
     </div>
 
-    <!-- FLEET NODES & AUXILIARY DOCKER SERVICES MATRIX -->
-    <div class="card">
-      <div class="card-header">
-        <div style="font-size: 24px; margin-right: 12px;">🖥️</div>
-        <div>
-          <h2>Distributed Fleet Topology & Auxiliary Docker Services Matrix</h2>
-          <p>Assign packet capture (Zeek TAP/SPAN + Suricata IDS with OT/SCADA rules) and host filesystem vulnerability assessment containers to target systems while keeping production workstations lean.</p>
+    <!-- DYNAMIC FLEET NODES BUILDER (Replaces confusing hardcoded table) -->
+    <div class="card" id="fleet_builder_card">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <div style="font-size: 24px;">🖥️</div>
+          <div>
+            <h2>Fleet Nodes & Sensor Forwarding Topology</h2>
+            <p>Define which machines run Core SIEM, packet sniffing (Zeek/Suricata), vulnerability scanning, or log forwarding, and specify where each node sends its logs.</p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+          <button class="btn btn-secondary" type="button" onclick="loadSampleFleetPreset()" style="font-size: 11px; padding: 7px 12px;" title="Load standard multi-node reference setup (Primary Core, Secondary Core, Edge Forwarders)">
+            📋 Load Sample Multi-Sensor Topology
+          </button>
+          <button class="btn btn-cyan" id="btn_inline_preflight" type="button" onclick="runInlinePreflightCheck()" style="font-size: 11px; padding: 7px 12px;" title="Ping each fleet node IP and verify Docker socket readiness">
+            ⚡ Test Fleet Connectivity
+          </button>
+          <button class="btn btn-secondary" type="button" onclick="clearFleetNodes()" style="font-size: 11px; padding: 7px 12px;">
+            🧹 Blank Slate
+          </button>
+          <button class="btn btn-primary" type="button" onclick="addNewFleetNode()" style="font-size: 11px; padding: 7px 12px;">
+            ➕ Add Node
+          </button>
         </div>
       </div>
+
       <div style="overflow-x: auto; margin-top: 10px;">
-        <table style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+        <table class="node-builder-table">
           <thead>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.12); color: var(--text-muted); font-size: 11px; text-transform: uppercase;">
-              <th style="padding: 10px 8px;">Target Host IP</th>
-              <th style="padding: 10px 8px;">Friendly Node Name</th>
-              <th style="padding: 10px 8px;">Cluster Role</th>
-              <th style="padding: 10px 8px; text-align: center;">Core SIEM</th>
-              <th style="padding: 10px 8px; text-align: center;">Zeek + Suricata Sensor</th>
-              <th style="padding: 10px 8px; text-align: center;">Host Vuln Scanner</th>
-              <th style="padding: 10px 8px;">Assigned Scope & Rules</th>
+            <tr>
+              <th style="width: 14%;">Node IP / Host</th>
+              <th style="width: 16%;">Friendly Node Name</th>
+              <th style="width: 7%; text-align: center;">Core SIEM</th>
+              <th style="width: 9%; text-align: center;">Mode</th>
+              <th style="width: 10%; text-align: center;">RAM Cap</th>
+              <th style="width: 8%; text-align: center;">Zeek/Suricata</th>
+              <th style="width: 8%; text-align: center;">Vuln Scanner</th>
+              <th style="width: 11%; text-align: center;">Host OS Self-Monitoring</th>
+              <th style="width: 13%;">Forwarding Target (SIEM Destination)</th>
+              <th style="width: 4%; text-align: center;">Action</th>
             </tr>
           </thead>
-          <tbody>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <td style="padding: 12px 8px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan);">192.168.88.24</td>
-              <td style="padding: 12px 8px; font-weight: 500;">Windows Operations Workstation</td>
-              <td style="padding: 12px 8px;"><span style="background: rgba(99,102,241,0.2); color: #818cf8; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Coordinator</span></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_core_24" checked disabled></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_zeek_24"></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_vuln_24"></td>
-              <td style="padding: 12px 8px; color: var(--text-muted); font-size: 11px;">Primary PC — Core SIEM only (Zeek & Scanners OFF)</td>
-            </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <td style="padding: 12px 8px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan);">192.168.88.25</td>
-              <td style="padding: 12px 8px; font-weight: 500;">MacBook Pro Lab Core</td>
-              <td style="padding: 12px 8px;"><span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Worker</span></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_core_25" checked disabled></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_zeek_25"></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_vuln_25"></td>
-              <td style="padding: 12px 8px; color: var(--text-muted); font-size: 11px;">Primary Mac — Core SIEM only (Zeek & Scanners OFF)</td>
-            </tr>
-            <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-              <td style="padding: 12px 8px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan);">192.168.88.44</td>
-              <td style="padding: 12px 8px; font-weight: 500;">Ubuntu Demo 1 (lame-lume)</td>
-              <td style="padding: 12px 8px;"><span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Worker</span></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_core_44" checked disabled></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_zeek_44"></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_vuln_44" checked></td>
-              <td style="padding: 12px 8px; color: var(--accent-purple); font-size: 11px;">🔍 Host Vulnerability Scanner Active (Trivy Daemon, /host mount)</td>
-            </tr>
-            <tr>
-              <td style="padding: 12px 8px; font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan);">192.168.88.15</td>
-              <td style="padding: 12px 8px; font-weight: 500;">Ubuntu Demo 2 (large-lume)</td>
-              <td style="padding: 12px 8px;"><span style="background: rgba(16,185,129,0.2); color: #34d399; padding: 2px 8px; border-radius: 4px; font-size: 11px;">Worker</span></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_core_15" checked disabled></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_zeek_15" checked></td>
-              <td style="padding: 12px 8px; text-align: center;"><input type="checkbox" id="aux_vuln_15" checked></td>
-              <td style="padding: 12px 8px; color: var(--accent-emerald); font-size: 11px;">🛡️ Zeek Network Sensor + Suricata IDS (OT SCADA Rules) & Vuln Scanner</td>
-            </tr>
+          <tbody id="fleet_nodes_tbody">
+            <!-- Dynamically populated by JS renderFleetNodes() -->
           </tbody>
         </table>
       </div>
-      <div style="margin-top: 14px; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 8px;">
-        <span style="color: var(--accent-emerald); font-weight: 600;">✓ Configured State:</span> Node 15 is designated for network sniffing (Zeek + Suricata with Industrial OT/SCADA rules) & host CVE audits. Node 44 runs host CVE audits. Production PC & Mac are protected from scanner overhead.
+
+      <div id="fleet_topology_summary" style="margin-top: 14px; font-size: 12px; color: #94a3b8; display: flex; align-items: center; gap: 8px; background: rgba(13, 18, 31, 0.4); padding: 10px 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.06);">
+        <span style="color: var(--accent-cyan); font-weight: 600;">ℹ️ Active Topology:</span> <span id="fleet_topology_summary_text">1 Node defined.</span>
+      </div>
+
+      <!-- DYNAMIC VISUAL TOPOLOGY GRAPH (PHASE 2) -->
+      <div id="fleet_visual_topology_container" class="topology-map-wrapper">
+        <!-- Dynamically populated by JS renderVisualTopologyMap() -->
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-header">
-        <h2>🎯 Perimeter & Sensor Host Targets</h2>
-        <p>Configure interface bindings and remote node tags.</p>
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Zeek Sensor Sniffing Interface</label>
-          <input type="text" id="sensor_interface" value="ens160" placeholder="e.g. eth0, ens160, bond0, span0">
-          <div class="helper">The physical or TAP/SPAN interface Zeek will listen on in promiscuous host mode.</div>
-        </div>
-        <div class="form-group">
-          <label>Sensor Node Identifier</label>
-          <input type="text" id="sensor_id" value="sensor-node-primary">
-          <div class="helper">Name tagged on all generated Corelight/Zeek logs in Project Lume.</div>
-        </div>
-        <div class="form-group">
-          <label>Vulnerability Scanner Target Host Path</label>
-          <input type="text" id="scanner_target_dir" value="/host">
-          <div class="helper">Mount point for host root filesystem checking (default: /host mapped from /).</div>
-        </div>
-        <div class="form-group">
-          <label>Scanner Schedule (Minutes between scans)</label>
-          <input type="number" id="scanner_interval" value="360">
-          <div class="helper">360 = 6 hours periodic CVE scans.</div>
-        </div>
-      </div>
-    </div>
+    <!-- COLLAPSIBLE ADVANCED NETWORK & SENSOR SETTINGS ACCORDION (Replaces Upload 3) -->
+    <details class="collapsible-card">
+      <summary>⚙️ Advanced Network, Interfaces & Scanner Settings (Optional)</summary>
+      <div class="collapsible-body">
+        <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">
+          Fine-tune network interface bindings, listening ports, scanner mount points, and internal CIDR boundaries. The defaults below work out-of-the-box for standard environments.
+        </p>
 
-    <div class="card">
-      <div class="card-header">
-        <h2>🌐 Network Scoping & CIDR Boundaries</h2>
-        <p>Define trusted internal subnets and perimeter DMZ boundaries for autonomous correlation and lateral movement detection.</p>
-      </div>
-      <div class="grid-2">
-        <div class="form-group">
-          <label>Internal Network Subnets (RFC 1918 / Private CIDRs)</label>
-          <input type="text" id="internal_cidrs" value="10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16" placeholder="e.g. 10.0.0.0/8, 192.168.88.0/24">
-          <div class="helper">Traffic within these subnets is treated as internal; outbound traffic is flagged as egress.</div>
+        <div class="grid-2">
+          <div class="form-group">
+            <label>Zeek Sensor Sniffing Interface</label>
+            <input type="text" id="sensor_interface" value="ens160" placeholder="e.g. eth0, ens160, bond0, span0">
+            <div class="helper">The physical or TAP/SPAN interface Zeek listens on in promiscuous host mode.</div>
+          </div>
+          <div class="form-group">
+            <label>Sensor Node Identifier</label>
+            <input type="text" id="sensor_id" value="sensor-node-primary">
+            <div class="helper">Name tagged on all generated Corelight/Zeek logs in Project Lume.</div>
+          </div>
         </div>
-        <div class="form-group">
-          <label>DMZ / Perimeter Subnets</label>
-          <input type="text" id="dmz_cidrs" value="192.168.88.0/24" placeholder="e.g. 192.168.88.0/24">
-          <div class="helper">Exposed web/gateway tiers triggering higher alert scoring on inbound probes.</div>
+
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Syslog UDP Port (RFC 5424)</label>
+            <input type="number" id="syslog_port" value="514">
+            <div class="helper">Standard UDP/TCP syslog receiver port.</div>
+          </div>
+          <div class="form-group">
+            <label>Secure TLS / OSQuery Port</label>
+            <input type="number" id="tls_ingest_port" value="1514">
+            <div class="helper">Encrypted high-throughput ingestion port.</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Vulnerability Scanner Target Host Path</label>
+            <input type="text" id="scanner_target_dir" value="/host">
+            <div class="helper">Mount point for host root filesystem checking (default: /host mapped from /).</div>
+          </div>
+          <div class="form-group">
+            <label>Scanner Schedule (Minutes between scans)</label>
+            <input type="number" id="scanner_interval" value="360">
+            <div class="helper">360 = 6 hours periodic CVE scans.</div>
+          </div>
+        </div>
+
+        <div class="grid-2" style="margin-top: 10px;">
+          <div class="form-group">
+            <label>Internal Network Subnets (RFC 1918 / Private CIDRs)</label>
+            <input type="text" id="internal_cidrs" value="10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16" placeholder="e.g. 10.0.0.0/8, 192.168.88.0/24">
+            <div class="helper">Traffic within these subnets is treated as internal; outbound traffic is flagged as egress.</div>
+          </div>
+          <div class="form-group">
+            <label>DMZ / Perimeter Subnets</label>
+            <input type="text" id="dmz_cidrs" value="192.168.88.0/24" placeholder="e.g. 192.168.88.0/24">
+            <div class="helper">Exposed web/gateway tiers triggering higher alert scoring on inbound probes.</div>
+          </div>
         </div>
       </div>
-    </div>
+    </details>
   </div>
 
   <!-- TAB 2: STORAGE LIFECYCLE & DISK GOVERNOR -->
@@ -844,6 +1079,39 @@ pre {
           <input type="password" id="cold_storage_secret_key" value="minioadmin123" placeholder="••••••••••••••••">
         </div>
       </div>
+    </div>
+
+    <!-- DATASET & NAMESPACE ISOLATION / PURGE MANAGER -->
+    <div class="card" style="border: 1px solid rgba(239, 68, 68, 0.35); background: linear-gradient(180deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.9) 100%);">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <div>
+          <h2 style="display: flex; align-items: center; gap: 8px;">
+            <span style="color: #ef4444;">🗑️</span> Dataset & Namespace Management (Superuser)
+          </h2>
+          <p>Inspect active isolated datasets, deduplicate resent sensor batches (_ib_eid), or completely purge test namespaces across all DuckDB tables.</p>
+        </div>
+        <button class="btn btn-secondary" onclick="refreshDatasetManager()" style="font-size: 11px; padding: 6px 12px;">🔄 Refresh Datasets</button>
+      </div>
+
+      <div style="overflow-x: auto; margin-top: 10px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead>
+            <tr style="border-bottom: 1px solid rgba(255,255,255,0.1); text-align: left; color: #94a3b8;">
+              <th style="padding: 10px 8px;">Namespace</th>
+              <th style="padding: 10px 8px;">Display Name</th>
+              <th style="padding: 10px 8px;">Total Events</th>
+              <th style="padding: 10px 8px;">Description</th>
+              <th style="padding: 10px 8px; text-align: right;">Superuser Actions</th>
+            </tr>
+          </thead>
+          <tbody id="dataset_manager_tbody">
+            <tr>
+              <td colspan="5" style="padding: 16px; text-align: center; color: #64748b;">Loading registered datasets...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div id="dataset_action_status" style="margin-top: 10px; font-size: 12px; font-weight: 500;"></div>
     </div>
   </div>
 
@@ -1122,6 +1390,193 @@ pre {
     </div>
   </div>
 
+  <!-- TAB 7: FLEET UPDATE -->
+  <div id="tab-update" class="tab-panel">
+    <div class="card">
+      <div class="card-header">
+        <h2>🔄 Rolling Fleet Software Update & Image Synchronization</h2>
+        <p>Safely upgrade running Project Lume containers to newer image releases without manual command-line wrangling or data loss.</p>
+      </div>
+
+      <!-- Educational / Operational Guide Alert -->
+      <div style="background: rgba(99, 102, 241, 0.1); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+        <h3 style="font-size: 14px; color: #a5b4fc; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span>💡 Understanding How Docker Updates Work (And Preservation of Data)</span>
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5; margin-bottom: 10px;">
+          In Docker, software updates replace the ephemeral container layers with new image layers while <b>retaining all persistent mounts</b> (e.g. <code>./data_vaults</code>, DuckDB files, SQLite databases, and <code>.env</code> credentials).
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 12px; font-size: 12px;">
+          <div style="background: rgba(13, 18, 31, 0.6); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <b style="color: var(--accent-cyan);">1. Pull Latest Layer (`docker pull`)</b>
+            <p style="color: var(--text-muted); font-size: 11px; margin-top: 3px;">Downloads only differential SHA256 image layer deltas from Docker Hub or registry.</p>
+          </div>
+          <div style="background: rgba(13, 18, 31, 0.6); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <b style="color: var(--accent-emerald);">2. Graceful Recreation (`compose up -d`)</b>
+            <p style="color: var(--text-muted); font-size: 11px; margin-top: 3px;">Sends SIGTERM to flush writes to DuckDB/SQLite, destroys old container, and starts new container using existing volumes.</p>
+          </div>
+          <div style="background: rgba(13, 18, 31, 0.6); padding: 10px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <b style="color: var(--accent-purple);">3. Dependency Staging (Splunk Model)</b>
+            <p style="color: var(--text-muted); font-size: 11px; margin-top: 3px;">Coordinator / Core updated first to execute DB migrations before Sensors & Forwarders stream new telemetry.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Update Strategy Selector -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label>Select Update Methodology</label>
+        <div class="grid-2">
+          <label class="checkbox-card" style="margin-bottom: 0;">
+            <input type="radio" name="update_strategy" value="pull_recreate" checked>
+            <div class="checkbox-content">
+              <div class="checkbox-title">🚀 Rolling Pull & Graceful Recreate (Recommended)</div>
+              <div class="checkbox-desc">Pulls the latest image digest from Docker Hub and runs <code>docker compose up -d</code>. Preserves all data vaults and configurations with minimal (~5-10s) service interruption.</div>
+            </div>
+          </label>
+          <label class="checkbox-card" style="margin-bottom: 0;">
+            <input type="radio" name="update_strategy" value="airgap_tars">
+            <div class="checkbox-content">
+              <div class="checkbox-title">📦 Sneakernet Air-Gap Archive Load</div>
+              <div class="checkbox-desc">Loads pre-staged <code>*.tar</code> Docker archives from the local <code>./lume_airgap_tars/</code> folder, then restarts services. Ideal for disconnected SCADA/ICS networks.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Target System Selection -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="margin-bottom: 0;">Choose Systems to Update</label>
+          <div style="font-size: 12px;">
+            <a href="javascript:void(0)" onclick="toggleSelectAllUpdateNodes(true)" style="color: var(--accent-cyan); text-decoration: none; margin-right: 12px;">Select All</a>
+            <a href="javascript:void(0)" onclick="toggleSelectAllUpdateNodes(false)" style="color: var(--text-muted); text-decoration: none;">Deselect All</a>
+          </div>
+        </div>
+        <div id="update_node_list_container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Dynamically populated from fleetNodes -->
+        </div>
+      </div>
+
+      <!-- Execution Options -->
+      <div class="grid-2" style="margin-bottom: 20px;">
+        <label class="checkbox-card" style="margin-bottom: 0;">
+          <input type="checkbox" id="update_enforce_order" checked>
+          <div class="checkbox-content">
+            <div class="checkbox-title">⚡ Enforce Dependency Sequence (Splunk Order)</div>
+            <div class="checkbox-desc">Updates Coordinator Core SIEM first, followed by Secondary Workers, then Network Sensors (Zeek/Suricata), and Scanners last.</div>
+          </div>
+        </label>
+        <label class="checkbox-card" style="margin-bottom: 0;">
+          <input type="checkbox" id="update_prune_dangling" checked>
+          <div class="checkbox-content">
+            <div class="checkbox-title">🧹 Prune Outdated Docker Image Layers</div>
+            <div class="checkbox-desc">Automatically executes <code>docker image prune -f</code> on each node post-upgrade to reclaim unused disk space.</div>
+          </div>
+        </label>
+      </div>
+
+      <!-- Actions -->
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+        <button class="btn btn-emerald pulse-btn" id="btn_execute_update" onclick="executeFleetUpdate()">
+          🚀 Execute Orchestrated Fleet Update
+        </button>
+        <button class="btn btn-secondary" onclick="generateLifecycleRunbook('update')">
+          📋 Generate Copy-Paste Command Runbook (Air-Gap / Manual)
+        </button>
+      </div>
+
+      <div class="status-log" id="update_status_log">Ready. Fleet update telemetry, SSH commands, and Docker pull logs will stream here...</div>
+    </div>
+  </div>
+
+  <!-- TAB 8: FLEET DECOMMISSION / REMOVE -->
+  <div id="tab-remove" class="tab-panel">
+    <div class="card" style="border-color: rgba(244, 63, 94, 0.35);">
+      <div class="card-header">
+        <h2 style="color: #f87171;">🗑️ Fleet Decommission, Teardown & Clean Removal</h2>
+        <p>Safely stop and remove Project Lume software containers, clean Docker networks, and optionally wipe database volumes and data vaults.</p>
+      </div>
+
+      <!-- Danger Alert -->
+      <div style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.3); border-radius: 10px; padding: 16px; margin-bottom: 20px;">
+        <h3 style="font-size: 14px; color: #fb7185; margin-bottom: 6px; display: flex; align-items: center; gap: 8px;">
+          <span>⚠️ High-Impact Operation: Target Teardown</span>
+        </h3>
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.5;">
+          Use this panel when decommissioning a node, testing a clean-slate re-deployment, or wiping telemetry vaults. Choose carefully what items you wish to remove.
+        </p>
+      </div>
+
+      <!-- Target Selection -->
+      <div class="form-group" style="margin-bottom: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <label style="margin-bottom: 0;">Choose Systems to Decommission / Remove</label>
+          <div style="font-size: 12px;">
+            <a href="javascript:void(0)" onclick="toggleSelectAllRemoveNodes(true)" style="color: var(--accent-rose); text-decoration: none; margin-right: 12px;">Select All</a>
+            <a href="javascript:void(0)" onclick="toggleSelectAllRemoveNodes(false)" style="color: var(--text-muted); text-decoration: none;">Deselect All</a>
+          </div>
+        </div>
+        <div id="remove_node_list_container" style="display: flex; flex-direction: column; gap: 8px;">
+          <!-- Dynamically populated from fleetNodes -->
+        </div>
+      </div>
+
+      <!-- Granular Removal Checkboxes -->
+      <div class="form-group" style="margin-bottom: 20px;">
+        <label>Select Removal Granularity & Data Cleanup Scope</label>
+        <div style="display: flex; flex-direction: column; gap: 8px;">
+          <label class="checkbox-card" style="margin-bottom: 0;">
+            <input type="checkbox" id="remove_opt_containers" checked disabled>
+            <div class="checkbox-content">
+              <div class="checkbox-title">⏹️ Stop & Remove Containers (`docker compose down`)</div>
+              <div class="checkbox-desc">Stops running Core SIEM, Zeek Sensor, and Vuln Scanner containers and removes Docker virtual network bridges. (Always required)</div>
+            </div>
+          </label>
+          <label class="checkbox-card" style="margin-bottom: 0;">
+            <input type="checkbox" id="remove_opt_images" checked>
+            <div class="checkbox-content">
+              <div class="checkbox-title">📦 Remove Docker Images (`docker rmi`)</div>
+              <div class="checkbox-desc">Purges cached Docker image layers for <code>project_lume</code>, <code>lume-zeek-sensor</code>, and <code>lume-vuln-scanner</code> to reclaim 5GB+ disk space.</div>
+            </div>
+          </label>
+          <label class="checkbox-card" style="margin-bottom: 0; border-color: rgba(244, 63, 94, 0.3);">
+            <input type="checkbox" id="remove_opt_vaults">
+            <div class="checkbox-content">
+              <div class="checkbox-title" style="color: #fb7185;">💥 Wipe Data Vaults, DuckDB & SQLite Databases (`./data_vaults`)</div>
+              <div class="checkbox-desc">Irreversibly deletes parquet vaults, incident indices, security alerts, and local telemetry databases. Use for pristine reset.</div>
+            </div>
+          </label>
+          <label class="checkbox-card" style="margin-bottom: 0;">
+            <input type="checkbox" id="remove_opt_configs">
+            <div class="checkbox-content">
+              <div class="checkbox-title">📄 Wipe Configuration Files (`.env`, `ai_config.json`, `docker-compose.yml`)</div>
+              <div class="checkbox-desc">Deletes generated environment variables, token keys, and compose files from the deployment folder.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <!-- Confirmation Guardrail -->
+      <div class="form-group" style="margin-bottom: 20px; background: rgba(13, 18, 31, 0.8); padding: 16px; border-radius: 8px; border: 1px solid rgba(255, 255, 255, 0.08);">
+        <label style="color: #fb7185;">Safety Guardrail: Type "REMOVE" to unlock execution</label>
+        <div style="display: flex; gap: 12px; align-items: center; max-width: 450px;">
+          <input type="text" id="remove_confirm_input" placeholder="Type REMOVE" onkeyup="checkRemoveSafetyLock()" style="text-transform: uppercase;">
+          <button class="btn btn-rose" id="btn_execute_remove" disabled onclick="executeFleetRemove()">
+            🗑️ Decommission Selected Systems
+          </button>
+        </div>
+      </div>
+
+      <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px;">
+        <button class="btn btn-secondary" onclick="generateLifecycleRunbook('remove')">
+          📋 Generate Copy-Paste Teardown Runbook (Manual / Terminal)
+        </button>
+      </div>
+
+      <div class="status-log" id="remove_status_log">Ready. Teardown execution logs, container stops, and image deletion results will stream here...</div>
+    </div>
+  </div>
+
   <!-- FLOATING PERSISTENT DEPLOYMENT DOCK -->
   <div class="floating-launch-bar">
     <div class="meta-info">
@@ -1164,13 +1619,123 @@ function initRulesUI() {
   });
 }
 
-function switchTab(name) {
+function switchTab(name, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
-  event.target.classList.add('active');
-  document.getElementById('tab-' + name).classList.add('active');
+  if (btn) {
+    btn.classList.add('active');
+  } else {
+    const el = document.getElementById('tab_btn_' + name);
+    if (el) el.classList.add('active');
+  }
+  const panel = document.getElementById('tab-' + name);
+  if (panel) panel.classList.add('active');
   if (name === 'compose') {
     generateAndPreview('core');
+  } else if (name === 'storage') {
+    refreshDatasetManager();
+  } else if (name === 'update') {
+    renderUpdateNodeList();
+  } else if (name === 'remove') {
+    renderRemoveNodeList();
+  }
+}
+
+async function refreshDatasetManager() {
+  const tbody = document.getElementById('dataset_manager_tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '<tr><td colspan="5" style="padding: 14px; text-align: center; color: #94a3b8;">⏳ Scanning active DuckDB vaults and namespaces...</td></tr>';
+  
+  const hostIp = document.getElementById('lume_host_ip').value.trim() || '127.0.0.1';
+  const port = document.getElementById('lume_port').value.trim() || '9000';
+  const token = document.getElementById('lume_token').value.trim() || 'LAME_SECRET_TOKEN_99';
+  const targetBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? `http://${window.location.hostname}:${port}`
+    : `http://${hostIp}:${port}`;
+
+  try {
+    const res = await fetch(`${targetBase}/api/search/namespaces`, { credentials: 'omit' });
+    const json = await res.json();
+    if (json.status === 'success' && Array.isArray(json.namespaces)) {
+      tbody.innerHTML = '';
+      const list = json.namespaces.filter(ns => ns.namespace !== 'all');
+      if (list.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="padding: 14px; text-align: center; color: #64748b;">No active tenant namespaces detected in DuckDB.</td></tr>';
+        return;
+      }
+      list.forEach(ns => {
+        const tr = document.createElement('tr');
+        tr.style.borderBottom = '1px solid rgba(255,255,255,0.05)';
+        const countFormatted = Number(ns.event_count || 0).toLocaleString();
+        tr.innerHTML = `
+          <td style="padding: 10px 8px; font-family: monospace; font-weight: bold; color: ${ns.color_code || '#6366f1'};">${ns.namespace}</td>
+          <td style="padding: 10px 8px; font-weight: 500;">${ns.display_name || ns.namespace}</td>
+          <td style="padding: 10px 8px;"><span style="background: rgba(99,102,241,0.18); border: 1px solid rgba(99,102,241,0.4); padding: 2px 7px; border-radius: 4px; font-size: 11px;">${countFormatted} events</span></td>
+          <td style="padding: 10px 8px; color: #94a3b8; font-size: 11px;">${ns.description || 'Tenant namespace partition'}</td>
+          <td style="padding: 10px 8px; text-align: right; white-space: nowrap;">
+            <button class="btn btn-cyan" onclick="deduplicateDataset('${ns.namespace}', '${targetBase}', '${token}')" style="font-size: 11px; padding: 4px 8px; margin-right: 6px;">🧹 Dedup (_ib_eid)</button>
+            <button class="btn btn-secondary" onclick="purgeDataset('${ns.namespace}', '${targetBase}', '${token}')" style="font-size: 11px; padding: 4px 8px; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); color: #fca5a5;">🗑️ Purge Dataset</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    } else {
+      tbody.innerHTML = `<tr><td colspan="5" style="padding: 18px 14px; text-align: center; color: #94a3b8;"><span style="color: #fbbf24; font-weight: 600;">ℹ️ Offline Inspection:</span> SIEM Core container is not currently running at <code>${targetBase}</code>. This is normal during initial configuration setup before containers are launched.</td></tr>`;
+    }
+  } catch (err) {
+    tbody.innerHTML = `<tr><td colspan="5" style="padding: 18px 14px; text-align: center; color: #94a3b8;"><span style="color: #60a5fa; font-weight: 600;">ℹ️ Pre-Deploy State:</span> SIEM Core engine at <code>${targetBase}</code> is offline. Once you generate and launch your Docker stack, active DuckDB datasets and namespaces will populate here for live inspection.</td></tr>`;
+  }
+}
+
+async function purgeDataset(namespace, targetBase, token) {
+  const confirmMsg = prompt(`⚠️ SUPERUSER ACTION: Are you sure you want to permanently PURGE ALL records in namespace "${namespace}"?\\n\\nType the namespace name "${namespace}" below to confirm:`);
+  if (confirmMsg !== namespace) {
+    alert("Purge cancelled. Namespace name did not match.");
+    return;
+  }
+
+  const statusEl = document.getElementById('dataset_action_status');
+  statusEl.innerHTML = `<span style="color: #f59e0b;">⏳ Purging namespace "${namespace}" across all DuckDB tables...</span>`;
+
+  try {
+    const res = await fetch(`${targetBase}/api/v1/ingest/namespaces/${namespace}`, {
+      method: 'DELETE',
+      headers: {
+        'X-Lume-Token': token
+      }
+    });
+    const json = await res.json();
+    if (json.status === 'success') {
+      statusEl.innerHTML = `<span style="color: #34d399;">✅ Successfully purged ${json.deleted_rows || json.purged_rows || 0} rows from namespace "${namespace}".</span>`;
+      refreshDatasetManager();
+    } else {
+      statusEl.innerHTML = `<span style="color: #ef4444;">❌ Purge failed: ${json.detail || json.message}</span>`;
+    }
+  } catch (e) {
+    statusEl.innerHTML = `<span style="color: #ef4444;">❌ Network error calling purge: ${e}</span>`;
+  }
+}
+
+async function deduplicateDataset(namespace, targetBase, token) {
+  const statusEl = document.getElementById('dataset_action_status');
+  statusEl.innerHTML = `<span style="color: #06b6d4;">⏳ Deduplicating namespace "${namespace}" via _ib_eid UUIDv7 keys...</span>`;
+
+  try {
+    const res = await fetch(`${targetBase}/api/search/namespaces/${namespace}/deduplicate`, {
+      method: 'POST',
+      headers: {
+        'X-Lume-Token': token
+      }
+    });
+    const json = await res.json();
+    if (json.status === 'success') {
+      statusEl.innerHTML = `<span style="color: #34d399;">✅ Cleaned ${json.duplicates_removed || 0} duplicate records from "${namespace}".</span>`;
+      refreshDatasetManager();
+    } else {
+      statusEl.innerHTML = `<span style="color: #ef4444;">❌ Deduplication failed: ${json.detail || json.message}</span>`;
+    }
+  } catch (e) {
+    statusEl.innerHTML = `<span style="color: #ef4444;">❌ Network error calling dedup: ${e}</span>`;
   }
 }
 
@@ -1185,6 +1750,608 @@ function toggleWatermarkInputs() {
   }
 }
 
+// ==============================================================================
+// DYNAMIC FLEET NODES DATA MODEL & TOPOLOGY CONTROLLER
+// ==============================================================================
+
+let fleetNodes = [
+  {
+    ip: "127.0.0.1",
+    name: "Primary Operations Core",
+    deploy_core: true,
+    demo_mode: false,
+    memory_cap: "8G",
+    deploy_zeek: false,
+    deploy_scanner: false,
+    deploy_thrower: false,
+    target_siem: "127.0.0.1:9000",
+    notes: "Primary Core SIEM"
+  }
+];
+
+function syncPrimaryCoreFromInputs() {
+  const hostIp = (document.getElementById('lume_host_ip') ? document.getElementById('lume_host_ip').value.trim() : '') || '127.0.0.1';
+  const nodeName = (document.getElementById('lume_node_name') ? document.getElementById('lume_node_name').value.trim() : '') || 'Primary Operations Core';
+  const port = (document.getElementById('lume_port') ? document.getElementById('lume_port').value.trim() : '') || '9000';
+
+  if (fleetNodes.length > 0 && fleetNodes[0].deploy_core) {
+    fleetNodes[0].ip = hostIp;
+    fleetNodes[0].name = nodeName;
+    fleetNodes[0].target_siem = `${hostIp}:${port}`;
+    renderFleetNodes();
+  }
+}
+
+function selectDeploymentMode(mode) {
+  const sel = document.getElementById('deploy_mode');
+  if (sel) sel.value = mode;
+
+  document.querySelectorAll('.arch-card').forEach(c => c.classList.remove('selected'));
+  const activeCard = document.getElementById('card_mode_' + mode);
+  if (activeCard) activeCard.classList.add('selected');
+
+  const fleetCard = document.getElementById('fleet_builder_card');
+  const hostIpInput = document.getElementById('lume_host_ip');
+
+  if (mode === 'all_in_one') {
+    if (hostIpInput) hostIpInput.value = '127.0.0.1';
+    fleetNodes = [
+      {
+        ip: "127.0.0.1",
+        name: "Local All-in-One Host",
+        deploy_core: true,
+        demo_mode: false,
+        memory_cap: "8G",
+        deploy_zeek: false,
+        deploy_scanner: false,
+        deploy_thrower: false,
+        target_siem: "127.0.0.1:9000",
+        notes: "Standalone local test machine"
+      }
+    ];
+    if (fleetCard) fleetCard.style.display = 'block';
+  } else if (mode === 'server_sensor') {
+    if (hostIpInput && (hostIpInput.value === '127.0.0.1' || !hostIpInput.value)) {
+      hostIpInput.value = '192.168.1.10';
+    }
+    const coreIp = (hostIpInput && hostIpInput.value) ? hostIpInput.value : '192.168.1.10';
+    fleetNodes = [
+      {
+        ip: coreIp,
+        name: "Main SIEM Server",
+        deploy_core: true,
+        demo_mode: false,
+        memory_cap: "8G",
+        deploy_zeek: false,
+        deploy_scanner: false,
+        deploy_thrower: false,
+        target_siem: `${coreIp}:9000`,
+        notes: "Central Lume SIEM Core"
+      },
+      {
+        ip: "192.168.1.20",
+        name: "Perimeter SPAN / TAP Sensor",
+        deploy_core: false,
+        demo_mode: false,
+        memory_cap: "2600M",
+        deploy_zeek: true,
+        deploy_scanner: true,
+        deploy_thrower: true,
+        target_siem: `${coreIp}:9000`,
+        notes: "Remote Zeek/Suricata sensor + Universal Forwarder -> Main Server"
+      }
+    ];
+    if (fleetCard) fleetCard.style.display = 'block';
+  } else {
+    // Custom Fleet / Multi-Node
+    if (fleetCard) fleetCard.style.display = 'block';
+    const coreIp = (hostIpInput && hostIpInput.value) ? hostIpInput.value : '192.168.1.10';
+    fleetNodes = [
+      {
+        ip: coreIp,
+        name: (document.getElementById('lume_node_name') ? document.getElementById('lume_node_name').value.trim() : '') || 'Primary Operations Core',
+        deploy_core: true,
+        demo_mode: false,
+        memory_cap: "12G",
+        deploy_zeek: true,
+        deploy_scanner: false,
+        deploy_thrower: false,
+        target_siem: `${coreIp}:9000`,
+        notes: "Primary Core SIEM & Network Sensor"
+      }
+    ];
+  }
+
+  renderFleetNodes();
+}
+
+function syncArchitectureCardsFromSelect() {
+  const sel = document.getElementById('deploy_mode');
+  const mode = sel ? sel.value : 'distributed';
+  document.querySelectorAll('.arch-card').forEach(c => c.classList.remove('selected'));
+  const activeCard = document.getElementById('card_mode_' + mode);
+  if (activeCard) {
+    activeCard.classList.add('selected');
+  } else {
+    const distCard = document.getElementById('card_mode_distributed');
+    if (distCard) distCard.classList.add('selected');
+  }
+}
+
+function renderFleetNodes() {
+  const tbody = document.getElementById('fleet_nodes_tbody');
+  if (!tbody) return;
+  tbody.innerHTML = '';
+
+  const coreNodes = fleetNodes.filter(n => n.deploy_core && n.ip.trim()).map(n => n.ip.trim());
+  const defaultCore = (document.getElementById('lume_host_ip') ? document.getElementById('lume_host_ip').value.trim() : '') || '192.168.88.15';
+  if (!coreNodes.includes(defaultCore) && defaultCore) coreNodes.unshift(defaultCore);
+
+  fleetNodes.forEach((node, idx) => {
+    const tr = document.createElement('tr');
+    tr.className = 'node-row';
+
+    let targetOptions = `<option value="127.0.0.1:9000" ${node.target_siem.startsWith('127.0.0.1') ? 'selected' : ''}>Local Core (127.0.0.1:9000)</option>`;
+    coreNodes.forEach(cIp => {
+      const val = `${cIp}:9000`;
+      const isSel = (node.target_siem === val || node.target_siem === cIp) ? 'selected' : '';
+      targetOptions += `<option value="${val}" ${isSel}>${cIp}:9000</option>`;
+    });
+    // Add custom fallback if target_siem is different
+    if (!coreNodes.includes(node.target_siem.replace(':9000','')) && !node.target_siem.startsWith('127.0.0.1')) {
+      targetOptions += `<option value="${node.target_siem}" selected>${node.target_siem}</option>`;
+    }
+
+    // Mode Toggle Button (Phase 1)
+    let modeHtml = `<span style="color: #64748b; font-size: 11px;">—</span>`;
+    if (node.deploy_core) {
+      if (node.demo_mode) {
+        modeHtml = `<button type="button" class="mode-toggle-btn mode-toggle-demo" onclick="toggleNodeMode(${idx})" title="Click to switch this node to Production Mode">🧪 Demo</button>`;
+      } else {
+        modeHtml = `<button type="button" class="mode-toggle-btn mode-toggle-prod" onclick="toggleNodeMode(${idx})" title="Click to switch this node to Demo Lab Mode">🛡️ Prod</button>`;
+      }
+    }
+
+    // Memory Cap Dropdown
+    let memHtml = `<span style="color: #64748b; font-size: 11px;">Host Auto</span>`;
+    if (node.deploy_core) {
+      const curMem = node.memory_cap || (node.ip.includes('15') ? '12G' : (node.ip.includes('44') ? '2600M' : '8G'));
+      memHtml = `
+        <select onchange="updateFleetNodeField(${idx}, 'memory_cap', this.value)" style="font-size: 11px; padding: 4px 6px;">
+          <option value="2600M" ${curMem === '2600M' ? 'selected' : ''}>2.6G (Edge)</option>
+          <option value="8G" ${curMem === '8G' ? 'selected' : ''}>8G (Standard)</option>
+          <option value="12G" ${curMem === '12G' ? 'selected' : ''}>12G (Heavy)</option>
+          <option value="16G" ${curMem === '16G' ? 'selected' : ''}>16G (Enterprise)</option>
+          <option value="32G" ${curMem === '32G' ? 'selected' : ''}>32G (Deep Vault)</option>
+        </select>
+      `;
+    }
+
+    tr.innerHTML = `
+      <td>
+        <div style="display: flex; align-items: center; gap: 6px;">
+          <input type="text" value="${escapeHtml(node.ip)}" placeholder="e.g. 192.168.88.15" onchange="updateFleetNodeField(${idx}, 'ip', this.value)" style="font-family: 'JetBrains Mono', monospace; color: var(--accent-cyan); font-weight: 600; flex: 1;">
+          <span id="ping_node_${idx}" style="font-size: 10px;"></span>
+        </div>
+      </td>
+      <td>
+        <input type="text" value="${escapeHtml(node.name)}" placeholder="Friendly Hostname" onchange="updateFleetNodeField(${idx}, 'name', this.value)">
+      </td>
+      <td style="text-align: center;">
+        <input type="checkbox" ${node.deploy_core ? 'checked' : ''} onchange="updateFleetNodeField(${idx}, 'deploy_core', this.checked)">
+      </td>
+      <td style="text-align: center;">
+        ${modeHtml}
+      </td>
+      <td style="text-align: center;">
+        ${memHtml}
+      </td>
+      <td style="text-align: center;">
+        <input type="checkbox" ${node.deploy_zeek ? 'checked' : ''} onchange="updateFleetNodeField(${idx}, 'deploy_zeek', this.checked)">
+      </td>
+      <td style="text-align: center;">
+        <input type="checkbox" ${node.deploy_scanner ? 'checked' : ''} onchange="updateFleetNodeField(${idx}, 'deploy_scanner', this.checked)">
+      </td>
+      <td style="text-align: center;">
+        <input type="checkbox" ${node.deploy_thrower ? 'checked' : ''} onchange="updateFleetNodeField(${idx}, 'deploy_thrower', this.checked)" title="Universal Forwarder (Vector high-throughput log shipper)">
+      </td>
+      <td>
+        <select onchange="updateFleetNodeField(${idx}, 'target_siem', this.value)">
+          ${targetOptions}
+        </select>
+      </td>
+      <td style="text-align: center;">
+        <button class="btn btn-secondary" type="button" onclick="removeFleetNode(${idx})" title="Remove Node" style="padding: 4px 8px; font-size: 11px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4); color: #fca5a5;">
+          ✕
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+
+  updateFleetTopologySummary();
+  renderVisualTopologyMap();
+}
+
+function toggleNodeMode(idx) {
+  if (fleetNodes[idx]) {
+    fleetNodes[idx].demo_mode = !fleetNodes[idx].demo_mode;
+    renderFleetNodes();
+    const modeName = fleetNodes[idx].demo_mode ? "Demo / Training Lab Mode" : "Strict Production Mode";
+    logMsg(`🔄 Toggled ${fleetNodes[idx].name || 'Node ' + (idx + 1)} to ${modeName}.`, 'info');
+  }
+}
+
+function updateFleetNodeField(idx, field, val) {
+  if (fleetNodes[idx]) {
+    fleetNodes[idx][field] = val;
+    if (field === 'ip' || field === 'deploy_core' || field === 'target_siem') {
+      renderFleetNodes();
+    } else {
+      updateFleetTopologySummary();
+      renderVisualTopologyMap();
+    }
+  }
+}
+
+function addNewFleetNode(data = null) {
+  const newNode = data || {
+    ip: "",
+    name: "New Node",
+    deploy_core: false,
+    demo_mode: false,
+    memory_cap: "8G",
+    deploy_zeek: false,
+    deploy_scanner: false,
+    deploy_thrower: true,
+    target_siem: (document.getElementById('lume_host_ip') ? document.getElementById('lume_host_ip').value.trim() : '') ? `${document.getElementById('lume_host_ip').value.trim()}:9000` : "127.0.0.1:9000",
+    notes: ""
+  };
+  fleetNodes.push(newNode);
+  renderFleetNodes();
+}
+
+function removeFleetNode(idx) {
+  if (fleetNodes.length <= 1) {
+    alert("At least one node must remain in the topology.");
+    return;
+  }
+  fleetNodes.splice(idx, 1);
+  renderFleetNodes();
+}
+
+function clearFleetNodes() {
+  fleetNodes = [
+    {
+      ip: (document.getElementById('lume_host_ip') ? document.getElementById('lume_host_ip').value.trim() : '') || "127.0.0.1",
+      name: "Primary Operations Core",
+      deploy_core: true,
+      demo_mode: false,
+      memory_cap: "8G",
+      deploy_zeek: false,
+      deploy_scanner: false,
+      deploy_thrower: false,
+      target_siem: (document.getElementById('lume_host_ip') ? document.getElementById('lume_host_ip').value.trim() : '') ? `${document.getElementById('lume_host_ip').value.trim()}:9000` : "127.0.0.1:9000",
+      notes: "Primary Core SIEM"
+    }
+  ];
+  renderFleetNodes();
+  logMsg("🧹 Cleared fleet topology matrix to a blank canvas.", 'warn');
+}
+
+function loadSampleFleetPreset() {
+  fleetNodes = [
+    {
+      ip: "192.168.88.15",
+      name: "Primary Operations Core",
+      deploy_core: true,
+      demo_mode: false,
+      memory_cap: "12G",
+      deploy_zeek: false,
+      deploy_scanner: false,
+      deploy_thrower: false,
+      target_siem: "192.168.88.15:9000",
+      notes: "Primary Core SIEM Node"
+    },
+    {
+      ip: "192.168.88.31",
+      name: "Secondary",
+      deploy_core: true,
+      demo_mode: false,
+      memory_cap: "8G",
+      deploy_zeek: true,
+      deploy_scanner: false,
+      deploy_thrower: false,
+      target_siem: "192.168.88.15:9000",
+      notes: "Secondary Core + Zeek/Suricata Sensor forwarding to .15"
+    },
+    {
+      ip: "192.168.88.44",
+      name: "Workstation",
+      deploy_core: false,
+      demo_mode: false,
+      memory_cap: "2600M",
+      deploy_zeek: false,
+      deploy_scanner: true,
+      deploy_thrower: true,
+      target_siem: "192.168.88.15:9000",
+      notes: "Workstation Host Vuln Scanner + Universal Forwarder -> .15"
+    }
+  ];
+
+  const hostIp = document.getElementById('lume_host_ip');
+  if (hostIp) hostIp.value = '192.168.88.15';
+
+  const sel = document.getElementById('deploy_mode');
+  if (sel) sel.value = 'distributed';
+  document.querySelectorAll('.arch-card').forEach(c => c.classList.remove('selected'));
+  const distCard = document.getElementById('card_mode_distributed');
+  if (distCard) distCard.classList.add('selected');
+  const fleetCard = document.getElementById('fleet_builder_card');
+  if (fleetCard) fleetCard.style.display = 'block';
+
+  renderFleetNodes();
+  renderUpdateNodeList();
+  renderRemoveNodeList();
+  logMsg("📋 Loaded 3-Node Topology Preset (.15 Core, .31 Core+Zeek, .44 Scanner+Forwarder).", 'info');
+}
+
+function applyPersonaPreset(type) {
+  if (type === 'enterprise_prod') {
+    fleetNodes = [
+      {
+        ip: "192.168.88.15",
+        name: "Primary Enterprise Core",
+        deploy_core: true,
+        demo_mode: false,
+        memory_cap: "16G",
+        deploy_zeek: false,
+        deploy_scanner: false,
+        deploy_thrower: true,
+        target_siem: "192.168.88.15:9000",
+        notes: "Hardened Production Core SIEM"
+      },
+      {
+        ip: "192.168.88.44",
+        name: "Perimeter Sensor & Forwarder",
+        deploy_core: false,
+        demo_mode: false,
+        memory_cap: "2600M",
+        deploy_zeek: true,
+        deploy_scanner: true,
+        deploy_thrower: true,
+        target_siem: "192.168.88.15:9000",
+        notes: "Zeek/Suricata IDS Sensor + Universal Forwarder -> .15"
+      }
+    ];
+    const hostIp = document.getElementById('lume_host_ip');
+    if (hostIp) hostIp.value = '192.168.88.15';
+    selectDeploymentMode('distributed');
+    logMsg("🏢 Applied Enterprise Sovereign Production Preset (Production Mode Locked, 16GB RAM limit, Universal Forwarders Active).", 'success');
+  } else if (type === 'demo_lab') {
+    fleetNodes = [
+      {
+        ip: "127.0.0.1",
+        name: "Project Lume POC & Demo Lab",
+        deploy_core: true,
+        demo_mode: true,
+        memory_cap: "8G",
+        deploy_zeek: false,
+        deploy_scanner: false,
+        deploy_thrower: false,
+        target_siem: "127.0.0.1:9000",
+        notes: "Training & Demonstration Lab with synthetic anomaly generation"
+      }
+    ];
+    const hostIp = document.getElementById('lume_host_ip');
+    if (hostIp) hostIp.value = '127.0.0.1';
+    selectDeploymentMode('all_in_one');
+    logMsg("🧪 Applied Customer POC & Training Lab Preset (Demo Mode ON, Showcase Telemetry Enabled, AI Coaching Active).", 'info');
+  } else if (type === 'tactical_edge') {
+    fleetNodes = [
+      {
+        ip: "192.168.1.100",
+        name: "Tactical Edge Sensor Node",
+        deploy_core: false,
+        demo_mode: false,
+        memory_cap: "2600M",
+        deploy_zeek: true,
+        deploy_scanner: true,
+        deploy_thrower: true,
+        target_siem: "192.168.1.10:9000",
+        notes: "Constrained OT Edge Node (Suricata SCADA + Universal Forwarder)"
+      }
+    ];
+    const hostIp = document.getElementById('lume_host_ip');
+    if (hostIp) hostIp.value = '192.168.1.10';
+    selectDeploymentMode('sensors_only');
+    logMsg("⚡ Applied Tactical OT / Industrial Edge Preset (Zeek + SCADA OT Rules, Constrained 2.6GB Cap, Universal Forwarder).", 'info');
+  }
+  renderFleetNodes();
+}
+
+function updateFleetTopologySummary() {
+  const summaryEl = document.getElementById('fleet_topology_summary_text');
+  if (!summaryEl) return;
+
+  const prodCount = fleetNodes.filter(n => n.deploy_core && !n.demo_mode).length;
+  const demoCount = fleetNodes.filter(n => n.deploy_core && n.demo_mode).length;
+  const zeekCount = fleetNodes.filter(n => n.deploy_zeek).length;
+  const vulnCount = fleetNodes.filter(n => n.deploy_scanner).length;
+  const forwarderCount = fleetNodes.filter(n => n.deploy_thrower).length;
+
+  summaryEl.innerHTML = `
+    <b>${fleetNodes.length} Nodes Configured:</b> 
+    <span style="color: #34d399;">${prodCount} Production Core</span>, 
+    <span style="color: #fbbf24;">${demoCount} Demo Lab</span>, 
+    <span style="color: #38bdf8;">${zeekCount} Zeek/Suricata Sensors</span>, 
+    <span style="color: #c084fc;">${vulnCount} Vuln Scanners</span>, 
+    <span style="color: #06b6d4;">${forwarderCount} Universal Forwarders</span>.
+  `;
+}
+
+function renderVisualTopologyMap() {
+  const container = document.getElementById('fleet_visual_topology_container');
+  if (!container) return;
+
+  if (!fleetNodes || fleetNodes.length === 0) {
+    container.innerHTML = '<div style="color: #64748b; font-size: 12px; text-align: center; padding: 16px;">No nodes configured. Add nodes above to view topology.</div>';
+    return;
+  }
+
+  const targetMap = {};
+  fleetNodes.forEach((node, idx) => {
+    if (node.deploy_core) {
+      const targetKey = `${node.ip || '127.0.0.1'}:9000`;
+      if (!targetMap[targetKey]) {
+        targetMap[targetKey] = {
+          node: node,
+          idx: idx,
+          feeders: []
+        };
+      }
+    }
+  });
+
+  fleetNodes.forEach(node => {
+    const t = node.target_siem || "127.0.0.1:9000";
+    if (!targetMap[t]) {
+      targetMap[t] = {
+        node: { ip: t.split(':')[0], name: `Central SIEM (${t})`, deploy_core: true, demo_mode: false },
+        idx: -1,
+        feeders: []
+      };
+    }
+    if (node.deploy_zeek || node.deploy_scanner || node.deploy_thrower || (!node.deploy_core && node.ip)) {
+      targetMap[t].feeders.push(node);
+    }
+  });
+
+  let html = `
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px;">
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <span style="font-size: 16px;">🗺️</span>
+        <span style="font-weight: 700; font-size: 13px; color: #fff;">Live Fleet Telemetry & Forwarding Flow</span>
+      </div>
+      <span style="font-size: 11px; color: #94a3b8; background: rgba(255,255,255,0.05); padding: 3px 8px; border-radius: 4px;">
+        Auto-updates in real time
+      </span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+  `;
+
+  Object.keys(targetMap).forEach(targetKey => {
+    const hub = targetMap[targetKey];
+    const coreNode = hub.node;
+    const modeBadge = coreNode.demo_mode 
+      ? '<span style="background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">🧪 DEMO LAB</span>'
+      : '<span style="background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.4); padding: 2px 6px; border-radius: 4px; font-size: 10px; font-weight: 700;">🛡️ PRODUCTION</span>';
+
+    html += `
+      <div style="background: rgba(18, 24, 38, 0.85); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 10px; padding: 14px 16px; box-shadow: 0 4px 16px rgba(0,0,0,0.3);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+          <div>
+            <div style="font-weight: 700; font-size: 13px; color: #fff; display: flex; align-items: center; gap: 6px;">
+              <span>🖥️</span> <span>${escapeHtml(coreNode.name || 'Central Core SIEM')}</span>
+            </div>
+            <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-cyan); margin-top: 2px;">
+              ${escapeHtml(targetKey)} (DuckDB & API)
+            </div>
+          </div>
+          <div>${modeBadge}</div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.06); padding-top: 10px; margin-top: 10px;">
+          <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px; font-weight: 600;">
+            Incoming Ingestion Streams (${hub.feeders.length}):
+          </div>
+    `;
+
+    if (hub.feeders.length === 0) {
+      html += `
+        <div style="font-size: 11px; color: #64748b; font-style: italic; padding: 6px 0;">
+          Local standalone ingestion only (Dropzone & local syslogs).
+        </div>
+      `;
+    } else {
+      hub.feeders.forEach(f => {
+        const streamBadges = [];
+        if (f.deploy_zeek) streamBadges.push('<span style="color: #6ee7b7; background: rgba(16,185,129,0.15); padding: 2px 6px; border-radius: 4px; font-size: 10px;">Zeek/Suricata TAP</span>');
+        if (f.deploy_scanner) streamBadges.push('<span style="color: #d8b4fe; background: rgba(168,85,247,0.15); padding: 2px 6px; border-radius: 4px; font-size: 10px;">Host Scanner</span>');
+        if (f.deploy_thrower) streamBadges.push('<span style="color: #67e8f9; background: rgba(6,182,212,0.15); padding: 2px 6px; border-radius: 4px; font-size: 10px;">Universal Forwarder</span>');
+
+        html += `
+          <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(10, 15, 29, 0.5); padding: 6px 10px; border-radius: 6px; margin-bottom: 6px; border: 1px solid rgba(255,255,255,0.04);">
+            <div>
+              <div style="font-size: 11px; font-weight: 600; color: #f1f5f9;">${escapeHtml(f.name || f.ip)}</div>
+              <div style="font-family: 'JetBrains Mono', monospace; font-size: 10px; color: #94a3b8;">${escapeHtml(f.ip)}</div>
+            </div>
+            <div style="display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end;">
+              ${streamBadges.join('')}
+            </div>
+          </div>
+        `;
+      });
+    }
+
+    html += `
+        </div>
+      </div>
+    `;
+  });
+
+  html += '</div>';
+  container.innerHTML = html;
+}
+
+async function runInlinePreflightCheck() {
+  const btn = document.getElementById('btn_inline_preflight');
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="pulse-spinner"></span> Probing Fleet...';
+  }
+
+  try {
+    const res = await fetch('/api/preflight_probe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nodes: fleetNodes,
+        form: getFormData()
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      (data.results || []).forEach((r, idx) => {
+        const pingEl = document.getElementById(`ping_node_${idx}`);
+        if (!pingEl) return;
+        if (r.reachable) {
+          if (r.docker_installed) {
+            pingEl.innerHTML = `<span style="color: #34d399; font-size: 10px;" title="Reachable, Docker Installed">🟢 Ready</span>`;
+          } else {
+            pingEl.innerHTML = `<span style="color: #fbbf24; font-size: 10px;" title="Reachable, but Docker not detected">🟡 No Docker</span>`;
+          }
+        } else {
+          pingEl.innerHTML = `<span style="color: #f87171; font-size: 10px;" title="Host Unreachable or SSH port closed">🔴 Offline</span>`;
+        }
+      });
+      logMsg("⚡ Fleet connectivity pre-flight check complete.", 'success');
+    }
+  } catch (err) {
+    logMsg(`Pre-flight probe error: ${err.message}`, 'err');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = '⚡ Test Fleet Connectivity';
+    }
+  }
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function getFormData() {
   const selectedRules = [];
   SURICATA_RULES.forEach(r => {
@@ -1197,6 +2364,23 @@ function getFormData() {
   if (document.getElementById('vuln_high').checked) severities.push('HIGH');
   if (document.getElementById('vuln_med').checked) severities.push('MEDIUM');
   if (document.getElementById('vuln_low').checked) severities.push('LOW');
+
+  // Convert fleetNodes array to legacy aux_services map for backwards compatibility
+  const auxServices = {};
+  fleetNodes.forEach(node => {
+    if (node.ip && node.ip.trim()) {
+      auxServices[node.ip.trim()] = {
+        deploy_core: Boolean(node.deploy_core),
+        demo_mode: Boolean(node.demo_mode),
+        memory_cap: node.memory_cap || "8G",
+        deploy_zeek: Boolean(node.deploy_zeek),
+        deploy_scanner: Boolean(node.deploy_scanner),
+        deploy_thrower: Boolean(node.deploy_thrower),
+        target_siem: node.target_siem || "127.0.0.1:9000",
+        friendly_name: node.name || node.ip
+      };
+    }
+  });
 
   return {
     deploy_mode: document.getElementById('deploy_mode').value,
@@ -1249,29 +2433,10 @@ function getFormData() {
     remote_ssh_host: (document.getElementById('remote_ssh_host') ? document.getElementById('remote_ssh_host').value : '192.168.88.44'),
     remote_ssh_user: (document.getElementById('remote_ssh_user') ? document.getElementById('remote_ssh_user').value : 'lame'),
     remote_ssh_pass: (document.getElementById('remote_ssh_pass') ? document.getElementById('remote_ssh_pass').value : 'Denver#2'),
-    // Auxiliary Node Docker Deployments
-    aux_services: {
-      "192.168.88.24": {
-        deploy_core: true,
-        deploy_zeek: Boolean(document.getElementById('aux_zeek_24') && document.getElementById('aux_zeek_24').checked),
-        deploy_scanner: Boolean(document.getElementById('aux_vuln_24') && document.getElementById('aux_vuln_24').checked)
-      },
-      "192.168.88.25": {
-        deploy_core: true,
-        deploy_zeek: Boolean(document.getElementById('aux_zeek_25') && document.getElementById('aux_zeek_25').checked),
-        deploy_scanner: Boolean(document.getElementById('aux_vuln_25') && document.getElementById('aux_vuln_25').checked)
-      },
-      "192.168.88.44": {
-        deploy_core: true,
-        deploy_zeek: Boolean(document.getElementById('aux_zeek_44') && document.getElementById('aux_zeek_44').checked),
-        deploy_scanner: Boolean(document.getElementById('aux_vuln_44') && document.getElementById('aux_vuln_44').checked)
-      },
-      "192.168.88.15": {
-        deploy_core: true,
-        deploy_zeek: Boolean(document.getElementById('aux_zeek_15') && document.getElementById('aux_zeek_15').checked),
-        deploy_scanner: Boolean(document.getElementById('aux_vuln_15') && document.getElementById('aux_vuln_15').checked)
-      }
-    }
+    // Dynamic Fleet Nodes array
+    nodes: fleetNodes,
+    // Auxiliary Node Docker Deployments (Legacy format map)
+    aux_services: auxServices
   };
 }
 
@@ -1311,33 +2476,54 @@ function applyTemplateData(tmpl) {
 
   // 1. Cluster & Architecture
   if (tmpl.cluster) {
-    if (tmpl.cluster.deployment_mode) document.getElementById('deploy_mode').value = tmpl.cluster.deployment_mode;
+    if (tmpl.cluster.deployment_mode) {
+      document.getElementById('deploy_mode').value = tmpl.cluster.deployment_mode;
+      selectDeploymentMode(tmpl.cluster.deployment_mode);
+    }
     if (tmpl.cluster.node_name) document.getElementById('lume_node_name').value = tmpl.cluster.node_name;
     if (tmpl.cluster.host_ip) document.getElementById('lume_host_ip').value = tmpl.cluster.host_ip;
     if (tmpl.cluster.port) document.getElementById('lume_port').value = tmpl.cluster.port;
     if (tmpl.cluster.syslog_port) document.getElementById('syslog_port').value = tmpl.cluster.syslog_port;
     if (tmpl.cluster.tls_ingest_port) document.getElementById('tls_ingest_port').value = tmpl.cluster.tls_ingest_port;
     if (tmpl.cluster.auth_token) document.getElementById('lume_token').value = tmpl.cluster.auth_token;
+
+    // Hydrate dynamic fleetNodes from cluster.nodes if present
+    if (Array.isArray(tmpl.cluster.nodes) && tmpl.cluster.nodes.length > 0) {
+      fleetNodes = tmpl.cluster.nodes.map(n => ({
+        ip: n.hostname || n.ip || "",
+        name: n.friendly_name || n.name || "Node",
+        deploy_core: (n.deploy_core !== undefined) ? Boolean(n.deploy_core) : true,
+        demo_mode: Boolean(n.demo_mode),
+        memory_cap: n.memory_cap || "8G",
+        deploy_zeek: Boolean(n.deploy_zeek),
+        deploy_scanner: Boolean(n.deploy_scanner),
+        deploy_thrower: Boolean(n.deploy_thrower),
+        target_siem: n.target_siem || n.endpoint || "127.0.0.1:9000",
+        notes: n.note || ""
+      }));
+      renderFleetNodes();
+    }
   }
 
-  // 1b. Distributed Node Auxiliary Services Matrix
-  const aux = tmpl.node_auxiliary_services || {};
-  if (aux['192.168.88.24']) {
-    if (document.getElementById('aux_zeek_24')) document.getElementById('aux_zeek_24').checked = Boolean(aux['192.168.88.24'].deploy_zeek);
-    if (document.getElementById('aux_vuln_24')) document.getElementById('aux_vuln_24').checked = Boolean(aux['192.168.88.24'].deploy_scanner);
+  // 1b. Distributed Node Auxiliary Services Matrix (Legacy map hydration)
+  if (tmpl.nodes && Array.isArray(tmpl.nodes)) {
+    fleetNodes = tmpl.nodes;
+    renderFleetNodes();
+  } else if (tmpl.node_auxiliary_services && Object.keys(tmpl.node_auxiliary_services).length > 0) {
+    const aux = tmpl.node_auxiliary_services;
+    fleetNodes = Object.keys(aux).map(ip => ({
+      ip: ip,
+      name: aux[ip].friendly_name || `Node ${ip}`,
+      deploy_core: (aux[ip].deploy_core !== undefined) ? Boolean(aux[ip].deploy_core) : true,
+      deploy_zeek: Boolean(aux[ip].deploy_zeek),
+      deploy_scanner: Boolean(aux[ip].deploy_scanner),
+      deploy_thrower: Boolean(aux[ip].deploy_thrower),
+      target_siem: aux[ip].target_siem || "127.0.0.1:9000",
+      notes: ""
+    }));
+    renderFleetNodes();
   }
-  if (aux['192.168.88.25']) {
-    if (document.getElementById('aux_zeek_25')) document.getElementById('aux_zeek_25').checked = Boolean(aux['192.168.88.25'].deploy_zeek);
-    if (document.getElementById('aux_vuln_25')) document.getElementById('aux_vuln_25').checked = Boolean(aux['192.168.88.25'].deploy_scanner);
-  }
-  if (aux['192.168.88.44']) {
-    if (document.getElementById('aux_zeek_44')) document.getElementById('aux_zeek_44').checked = Boolean(aux['192.168.88.44'].deploy_zeek);
-    if (document.getElementById('aux_vuln_44')) document.getElementById('aux_vuln_44').checked = Boolean(aux['192.168.88.44'].deploy_scanner);
-  }
-  if (aux['192.168.88.15']) {
-    if (document.getElementById('aux_zeek_15')) document.getElementById('aux_zeek_15').checked = Boolean(aux['192.168.88.15'].deploy_zeek);
-    if (document.getElementById('aux_vuln_15')) document.getElementById('aux_vuln_15').checked = Boolean(aux['192.168.88.15'].deploy_scanner);
-  }
+
 
   // 2. Storage Lifecycle & Disk Governor
   if (tmpl.storage_lifecycle) {
@@ -1435,7 +2621,7 @@ async function loadDemoLabTemplate() {
     const json = await res.json();
     if (json.status === 'success' && json.template) {
       applyTemplateData(json.template);
-      alert("✅ Demo lab environment template successfully loaded!\n\nAll 4 nodes, Storage Lifecycle rules (15% emergency watermark), Threat Intel API keys, and Network CIDRs are filled out.");
+      alert("✅ Demo lab environment template successfully loaded!\\n\\nAll 4 nodes, Storage Lifecycle rules (15% emergency watermark), Threat Intel API keys, and Network CIDRs are filled out.");
     } else {
       logMsg("Failed to load demo template: " + (json.message || "Unknown error"), 'err');
     }
@@ -1661,7 +2847,60 @@ function updateTopologyUI() {
 // VISUAL FLEET ORCHESTRATION & MISSION CONTROL CONTROLLER
 // ==============================================================================
 
+function renderOrchestrationNodes() {
+  const grid = document.getElementById('node_progress_grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const activeNodes = (typeof fleetNodes !== 'undefined' && fleetNodes.length > 0) ? fleetNodes : [
+    { ip: '127.0.0.1', name: 'Local Core', deploy_core: true }
+  ];
+
+  activeNodes.forEach((node, idx) => {
+    const card = document.createElement('div');
+    card.className = 'node-progress-card';
+    card.id = `card_node_dyn_${idx}`;
+
+    const ipDisplay = escapeHtml(node.ip || 'Local Node');
+    const nameDisplay = escapeHtml(node.name || `Node ${idx + 1}`);
+
+    // Badges based on active capabilities
+    const badges = [];
+    if (node.deploy_core) {
+      if (node.demo_mode) {
+        badges.push('<span class="node-badge" style="background: rgba(245,158,11,0.2); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4);">🧪 DEMO CORE</span>');
+      } else {
+        badges.push('<span class="node-badge" style="background: rgba(16,185,129,0.2); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.4);">🛡️ PROD CORE</span>');
+      }
+    }
+    if (node.deploy_zeek) badges.push('<span class="node-badge" style="background: rgba(139,92,246,0.2); color: #c4b5fd;">ZEEK</span>');
+    if (node.deploy_scanner) badges.push('<span class="node-badge" style="background: rgba(168,85,247,0.2); color: #d8b4fe;">SCANNER</span>');
+    if (node.deploy_thrower) badges.push('<span class="node-badge" style="background: rgba(6,182,212,0.2); color: #67e8f9;">FORWARDER</span>');
+    if (badges.length === 0) badges.push('<span class="node-badge" style="background: rgba(148,163,184,0.2); color: #cbd5e1;">AGENT</span>');
+
+    card.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 6px; gap: 6px; flex-wrap: wrap;">
+        <span style="font-weight: 700; font-size: 13px; color: #fff;">${ipDisplay}</span>
+        <div style="display: flex; gap: 4px; flex-wrap: wrap;">${badges.join('')}</div>
+      </div>
+      <div style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">${nameDisplay}</div>
+      <div style="font-size: 11px; color: #cbd5e1; line-height: 1.4;" id="status_node_dyn_${idx}">
+        <span>⚪</span> <span>Standing by for setup</span>
+      </div>
+    `;
+    grid.appendChild(card);
+  });
+
+  const summaryEl = document.getElementById('orchestration_targets_summary');
+  if (summaryEl) {
+    const names = activeNodes.map(n => n.name || n.ip).slice(0, 4).join(', ');
+    const extra = activeNodes.length > 4 ? ` (+${activeNodes.length - 4} more)` : '';
+    summaryEl.innerHTML = `Targets: <b>${activeNodes.length} Fleet Nodes</b> (${escapeHtml(names)}${extra})`;
+  }
+}
+
 function openOrchestrationModal(autoStart = false) {
+  renderOrchestrationNodes();
   document.getElementById('orchestration_modal').style.display = 'flex';
   if (autoStart) {
     executeFleetOrchestration();
@@ -1674,6 +2913,7 @@ function closeOrchestrationModal() {
 
 function logOrchestration(msg, type = 'info') {
   const box = document.getElementById('orchestration_console');
+  if (!box) return;
   const d = new Date().toLocaleTimeString();
   const colorMap = {
     info: '#38bdf8',
@@ -1687,9 +2927,9 @@ function logOrchestration(msg, type = 'info') {
   box.scrollTop = box.scrollHeight;
 }
 
-function setNodeUIState(nodeKey, state, text) {
-  const card = document.getElementById(`card_node_${nodeKey}`);
-  const statusEl = document.getElementById(`status_node_${nodeKey}`);
+function setDynNodeUIState(idx, state, text) {
+  const card = document.getElementById(`card_node_dyn_${idx}`);
+  const statusEl = document.getElementById(`status_node_dyn_${idx}`);
   if (!card || !statusEl) return;
 
   if (state === 'pending') {
@@ -1713,6 +2953,52 @@ function setNodeUIState(nodeKey, state, text) {
   }
 }
 
+async function runPreflightInspection() {
+  const btn = document.getElementById('btn_run_preflight');
+  const activeNodes = (typeof fleetNodes !== 'undefined' && fleetNodes.length > 0) ? fleetNodes : [
+    { ip: '127.0.0.1', name: 'Local Core', deploy_core: true, target_siem: '127.0.0.1:9000' }
+  ];
+
+  if (btn) btn.disabled = true;
+  logOrchestration(`🔍 Initiating pre-flight discovery probe across ${activeNodes.length} target node(s)...`, 'highlight');
+
+  try {
+    const res = await fetch('/api/preflight_probe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nodes: activeNodes,
+        form: getFormData()
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      (data.results || []).forEach((r, idx) => {
+        if (!r.reachable) {
+          logOrchestration(`⚠️ [Node ${idx+1}] ${r.name} (${r.ip}): Host unreachable or SSH port 22 closed. (If air-gapped or manual, use Sneakernet/Runbook)`, 'warn');
+          setDynNodeUIState(idx, 'warn', 'Unreachable / Air-gap');
+        } else if (!r.docker_installed) {
+          logOrchestration(`⚠️ [Node ${idx+1}] ${r.name} (${r.ip}): Reachable, but Docker engine was NOT detected! Please install Docker before rolling out.`, 'err');
+          setDynNodeUIState(idx, 'err', 'Docker Not Installed');
+        } else if (r.existing_containers && r.existing_containers.length > 0) {
+          logOrchestration(`🛡️ [Node ${idx+1}] ${r.name} (${r.ip}): EXISTING CONTAINERS DETECTED (${r.existing_containers.join(', ')}). An active deployment already exists here!`, 'warn');
+          setDynNodeUIState(idx, 'warn', `Already running: ${r.existing_containers.slice(0, 2).join(', ')}`);
+        } else {
+          logOrchestration(`✅ [Node ${idx+1}] ${r.name} (${r.ip}): Clean slate. Docker is operational and no conflicting containers found.`, 'success');
+          setDynNodeUIState(idx, 'pending', 'Clean Slate Verified');
+        }
+      });
+      logOrchestration(`🎯 Pre-flight inspection complete. Review findings above before proceeding with deployment.`, 'info');
+    } else {
+      logOrchestration(`Pre-flight probe error: ${data.message || 'Operation failed'}`, 'err');
+    }
+  } catch (err) {
+    logOrchestration(`Pre-flight probe network exception: ${err.message}`, 'err');
+  } finally {
+    if (btn) btn.disabled = false;
+  }
+}
+
 async function executeFleetOrchestration() {
   const btn = document.getElementById('btn_run_orchestration');
   const badge = document.getElementById('orchestration_status_badge');
@@ -1729,8 +3015,13 @@ async function executeFleetOrchestration() {
   badge.style.color = '#38bdf8';
   badge.style.borderColor = 'rgba(6,182,212,0.5)';
 
-  logOrchestration("🚀 Starting Project Lume Distributed Fleet Setup Pipeline...", 'highlight');
-  logOrchestration("Parsing active cluster topology: 4 Nodes (Windows PC, Mac, Ubuntu Demo 1, Ubuntu Demo 2 with Zeek OT).", 'info');
+  const activeNodes = (typeof fleetNodes !== 'undefined' && fleetNodes.length > 0) ? fleetNodes : [
+    { ip: '127.0.0.1', name: 'Local Core', deploy_core: true, target_siem: '127.0.0.1:9000' }
+  ];
+
+  renderOrchestrationNodes();
+
+  logOrchestration(`🚀 Starting Project Lume Distributed Fleet Setup Pipeline (${activeNodes.length} configured nodes)...`, 'highlight');
 
   const updateProgress = (pct, desc) => {
     progBar.style.width = pct + '%';
@@ -1739,80 +3030,112 @@ async function executeFleetOrchestration() {
   };
 
   try {
-    // STEP 1: Local configs generation
-    updateProgress(10, "Compiling environment policies & Docker definitions");
-    logOrchestration("⚙️ Step 1/5: Compiling .env, DuckDB memory caps, threat intel vaults, and node compose files...", 'info');
-    await new Promise(r => setTimeout(r, 600));
-
-    // STEP 2: Node 24 (Windows PC Coordinator)
-    setNodeUIState('24', 'running', 'System 192.168.88.24 is currently having Project Lume Coordinator installed on it...');
-    updateProgress(30, "System 192.168.88.24: Installing Coordinator");
-    logOrchestration("🖥️ Step 2/5: System 192.168.88.24 (Windows PC) is currently having Project Lume Coordinator installed on it (24GB memory ceiling, DuckDB engine, REST endpoints)...", 'info');
-    
-    // Remote SSH / Local action call
+    // PRE-CHECK: Check for existing containers across nodes before installing
+    updateProgress(3, "Inspecting target nodes for existing deployments");
+    logOrchestration("🔍 Running pre-install discovery to inspect what is already on target systems...", 'info');
     try {
-      await fetch('/api/remote_deploy', {
+      const probeRes = await fetch('/api/preflight_probe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'push_configs', form: { ...getFormData(), remote_ssh_host: '192.168.88.24' } })
+        body: JSON.stringify({ nodes: activeNodes, form: getFormData() })
       });
-    } catch(e) { /* background sync */ }
+      const probeData = await probeRes.json();
+      if (probeData.status === 'success') {
+        const collisions = (probeData.results || []).filter(r => r.existing_containers && r.existing_containers.length > 0);
+        if (collisions.length > 0) {
+          const names = collisions.map(c => `${c.name} (${c.ip}: ${c.existing_containers.join(', ')})`).join('\\n- ');
+          const okToProceed = confirm(`⚠️ NOTICE: Existing Project Lume software or containers were found on the following target nodes:\\n- ${names}\\n\\nDeploying now will update or recreate these existing services. Do you want to proceed with deployment?`);
+          if (!okToProceed) {
+            logOrchestration("🛑 Deployment cancelled by user to preserve existing instances.", 'warn');
+            badge.innerHTML = '⏸️ Deployment Paused';
+            badge.style.background = 'rgba(245,158,11,0.2)';
+            badge.style.color = '#fbbf24';
+            btn.disabled = false;
+            return;
+          }
+        }
+      }
+    } catch (probeErr) {
+      logOrchestration(`Pre-flight check notice: ${probeErr.message} (continuing with deployment)`, 'warn');
+    }
 
-    await new Promise(r => setTimeout(r, 900));
-    setNodeUIState('24', 'success', 'System 192.168.88.24 has completed installation.');
-    logOrchestration("✅ System 192.168.88.24 has completed installation. Coordinator is HEALTHY & active (HTTP 200).", 'success');
+    // STEP 1: Compile environment and node-specific Compose configurations
+    updateProgress(10, "Compiling environment policies & Docker definitions");
+    logOrchestration(`⚙️ Initializing: Compiling .env, memory caps, threat intel vaults, and compose manifests for ${activeNodes.length} nodes...`, 'info');
+    await new Promise(r => setTimeout(r, 500));
 
-    // STEP 3: Node 25 (MacBook Pro)
-    setNodeUIState('25', 'running', 'System 192.168.88.25 is currently having Lume Worker Core installed on it...');
-    updateProgress(50, "System 192.168.88.25: Installing Worker Core");
-    logOrchestration("💻 Step 3/5: System 192.168.88.25 (MacBook Pro) is currently having Lume Worker Core installed on it (16GB cap, workstation sniffing disabled)...", 'info');
-    await new Promise(r => setTimeout(r, 850));
-    setNodeUIState('25', 'success', 'System 192.168.88.25 has completed installation.');
-    logOrchestration("✅ System 192.168.88.25 has completed installation. Worker Core online & communicating with coordinator.", 'success');
+    // DYNAMIC EXECUTION LOOP OVER EACH CONFIGURED NODE
+    const totalNodes = activeNodes.length;
+    for (let i = 0; i < totalNodes; i++) {
+      const node = activeNodes[i];
+      const nodeIp = (node.ip || 'Local Node').trim();
+      const nodeName = node.name || `Node ${i + 1}`;
+      const services = [];
+      if (node.deploy_core) services.push('Core SIEM');
+      if (node.deploy_zeek) services.push('Zeek Network Sensor');
+      if (node.deploy_scanner) services.push('Vuln Scanner');
+      if (node.deploy_thrower) services.push(`Universal Forwarder -> ${node.target_siem || 'Core'}`);
+      const serviceDesc = services.length > 0 ? services.join(' + ') : 'Base Agent';
 
-    // STEP 4: Node 44 (Ubuntu Demo 1)
-    setNodeUIState('44', 'running', 'System 192.168.88.44 is currently having Core SIEM + Trivy Vulnerability Scanner installed on it...');
-    updateProgress(75, "System 192.168.88.44: Installing Core + Vuln Scanner");
-    logOrchestration("🔍 Step 4/5: System 192.168.88.44 (Ubuntu Demo 1) is currently having Core SIEM + Trivy Host Vulnerability Scanner installed on it...", 'info');
-    await new Promise(r => setTimeout(r, 1000));
-    setNodeUIState('44', 'success', 'System 192.168.88.44 has completed installation.');
-    logOrchestration("✅ System 192.168.88.44 has completed installation. Core SIEM and Trivy scanner daemon operational.", 'success');
+      const startPct = 10 + Math.round((i / totalNodes) * 80);
+      const endPct = 10 + Math.round(((i + 1) / totalNodes) * 80);
 
-    // STEP 5: SNEAKERNET & AIR-GAP ADVISORY TRIGGER + Node 15 (Ubuntu Demo 2)
-    sneakernetCard.classList.add('sneakernet-active-glow');
-    document.getElementById('sneakernet_badge').innerHTML = '⚠️ PHYSICAL ACTION REQUIRED';
-    document.getElementById('sneakernet_instruction_text').innerHTML =
-      '<b style="color: #fbbf24;">Action Required:</b> You need to get a thumb drive, save the generated bundle below, and move these files over to <b>System 192.168.88.15</b> for offline sensor deployment.';
-    document.getElementById('step_usb_prep').innerHTML = '<span>✅</span> <span style="color: #34d399;"><b>1. Deployment Bundle Ready:</b> <code>docker-compose.node15-full-sensor.yml</code> & configs packed.</span>';
-    document.getElementById('step_usb_move').innerHTML = '<span class="pulse-spinner"></span> <span style="color: #fbbf24; font-weight: 700;"><b>2. Physical Transfer:</b> Plug thumb drive into System 192.168.88.15.</span>';
+      updateProgress(startPct, `${nodeName} (${nodeIp}): Installing ${services[0] || 'Services'}`);
+      setDynNodeUIState(i, 'running', `Configuring ${nodeName} (${nodeIp})...`);
+      logOrchestration(`🖥️ [Node ${i + 1}/${totalNodes}] Deploying stack for ${nodeName} (${nodeIp}): ${serviceDesc}`, 'info');
 
-    logOrchestration("⚠️ [PHYSICAL ACTION] You need to get a thumb drive and move these deployment files over to System 192.168.88.15 (or execute over SSH).", 'warn');
+      // Call backend orchestrator endpoint with the specific node definition
+      let orchSuccess = false;
+      let orchMsg = '';
+      try {
+        const res = await fetch('/api/orchestrate_node', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            node_idx: i,
+            node: node,
+            node_id: `dyn_node_${i}`,
+            form: getFormData()
+          })
+        });
+        const resJson = await res.json();
+        if (resJson.status === 'success') {
+          orchSuccess = true;
+          orchMsg = resJson.message || `System ${nodeIp} deployed.`;
+        } else {
+          orchMsg = resJson.message || 'Deployment error';
+        }
+      } catch (e) {
+        orchMsg = e.message;
+        console.warn(`Orchestrate call for node ${nodeIp}:`, e);
+      }
 
-    setNodeUIState('15', 'running', 'System 192.168.88.15 is currently having Core SIEM + Zeek (OT Rules) + Vuln Scanner installed on it...');
-    updateProgress(90, "System 192.168.88.15: Installing Core + Zeek Sensor + Vuln Scanner");
-    logOrchestration("🛡️ Step 5/5: System 192.168.88.15 is currently having Core SIEM (12GB cap), Zeek Network Sniffer (Suricata IDS + SCADA/OT rules), and Trivy Scanner installed on it...", 'info');
-    
-    await new Promise(r => setTimeout(r, 1300));
-    
-    // Sneakernet resolution
-    document.getElementById('step_usb_move').innerHTML = '<span>✅</span> <span style="color: #34d399;"><b>2. Physical Transfer:</b> Thumb drive bundle deployed on System 192.168.88.15.</span>';
-    document.getElementById('step_usb_exec').innerHTML = '<span>✅</span> <span style="color: #34d399;"><b>3. Mount & Execute:</b> <code>docker compose up -d</code> executed successfully on target.</span>';
-    document.getElementById('step_usb_handshake').innerHTML = '<span>✅</span> <span style="color: #34d399;"><b>4. Uplink Verification:</b> System 192.168.88.15 telemetry uplink verified online.</span>';
-    sneakernetCard.classList.remove('sneakernet-active-glow');
+      if (orchSuccess) {
+        setDynNodeUIState(i, 'success', `System ${nodeIp} online.`);
+        logOrchestration(`✅ [Node ${i + 1}/${totalNodes}] ${nodeName} (${nodeIp}) installation verified. Containers started.`, 'success');
+      } else {
+        setDynNodeUIState(i, 'err', `Failed: ${orchMsg}`);
+        logOrchestration(`❌ [Node ${i + 1}/${totalNodes}] ${nodeName} (${nodeIp}) failed to deploy: ${orchMsg}`, 'err');
+      }
+      updateProgress(endPct, `${nodeName} processed`);
+    }
 
-    setNodeUIState('15', 'success', 'System 192.168.88.15 has completed installation.');
-    logOrchestration("✅ System 192.168.88.15 has completed installation. All 3 containers online (Core SIEM + Zeek Sensor + Vuln Scanner).", 'success');
-
-    // FINAL VERIFICATION
+    // FINAL VERIFICATION & CELEBRATION
     updateProgress(100, "Fleet Orchestration Complete");
     badge.innerHTML = '✅ All Systems Installed & Verified';
     badge.style.background = 'rgba(16,185,129,0.2)';
     badge.style.color = '#34d399';
     badge.style.borderColor = 'rgba(16,185,129,0.5)';
 
+    // Update success banner text dynamically
+    const bannerSubtitle = successBanner.querySelector('div > div:last-child');
+    if (bannerSubtitle) {
+      bannerSubtitle.textContent = `All ${totalNodes} configured fleet nodes (${activeNodes.map(n => n.ip || n.name).join(', ')}) are synchronized and operational.`;
+    }
     successBanner.style.display = 'flex';
-    logOrchestration("🎉 [MISSION SUCCESS] All 4 cluster systems are fully installed, synchronized, and reporting online!", 'success');
+    logOrchestration(`🎉 [MISSION SUCCESS] All ${totalNodes} configured fleet nodes are fully deployed and registered!`, 'success');
     logOrchestration("🌐 All systems are discoverable in the Node Management JSX view (`Settings -> Cluster & Federated Search`).", 'highlight');
+
   } catch (err) {
     logOrchestration(`❌ Orchestration pipeline encountered an error: ${err.message}`, 'err');
     badge.innerHTML = '⚠️ Completed with Advisories';
@@ -1823,8 +3146,284 @@ async function executeFleetOrchestration() {
   }
 }
 
+// ==============================================================================
+// FLEET UPDATE & DECOMMISSION FRONTEND CONTROLLERS
+// ==============================================================================
+
+function renderUpdateNodeList() {
+  const container = document.getElementById('update_node_list_container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const activeNodes = (fleetNodes || []).filter(n => (n.ip || '').trim().length > 0 || n.deploy_core);
+  if (activeNodes.length === 0) {
+    container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px;">No nodes currently configured in Tab 1 (Architecture & IPs).</div>';
+    return;
+  }
+
+  activeNodes.forEach((node, idx) => {
+    const isLocal = !node.ip || ['127.0.0.1', 'localhost', '0.0.0.0', '192.168.88.24'].includes(node.ip.trim());
+    const card = document.createElement('label');
+    card.className = 'checkbox-card';
+    card.style.marginBottom = '0';
+
+    const sList = [];
+    if (node.deploy_core) sList.push('Core SIEM');
+    if (node.deploy_zeek) sList.push('Zeek Network Sensor');
+    if (node.deploy_scanner) sList.push('Vuln Scanner');
+    if (node.deploy_thrower) sList.push('Universal Forwarder (Vector)');
+
+    card.innerHTML = `
+      <input type="checkbox" class="update-node-check" data-idx="${idx}" checked>
+      <div class="checkbox-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="checkbox-title">🖥️ ${escapeHtml(node.name || 'Node ' + (idx + 1))} <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-cyan);">(${escapeHtml(node.ip || '127.0.0.1')})</span></div>
+          <span style="font-size: 10px; padding: 2px 7px; border-radius: 4px; background: ${isLocal ? 'rgba(16,185,129,0.15); color: #34d399;' : 'rgba(6,182,212,0.15); color: var(--accent-cyan);'} border: 1px solid currentColor;">${isLocal ? 'Local / Coordinator' : 'Remote SSH'}</span>
+        </div>
+        <div class="checkbox-desc">Services: <b>${sList.join(' + ') || 'Base System'}</b> | Target Ingest: <code>${escapeHtml(node.target_siem || '127.0.0.1:9000')}</code></div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleSelectAllUpdateNodes(state) {
+  document.querySelectorAll('.update-node-check').forEach(chk => chk.checked = state);
+}
+
+function renderRemoveNodeList() {
+  const container = document.getElementById('remove_node_list_container');
+  if (!container) return;
+  container.innerHTML = '';
+
+  const activeNodes = (fleetNodes || []).filter(n => (n.ip || '').trim().length > 0 || n.deploy_core);
+  if (activeNodes.length === 0) {
+    container.innerHTML = '<div style="color: var(--text-muted); font-size: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 6px;">No nodes currently configured in Tab 1 (Architecture & IPs).</div>';
+    return;
+  }
+
+  activeNodes.forEach((node, idx) => {
+    const isLocal = !node.ip || ['127.0.0.1', 'localhost', '0.0.0.0', '192.168.88.24'].includes(node.ip.trim());
+    const card = document.createElement('label');
+    card.className = 'checkbox-card';
+    card.style.marginBottom = '0';
+    card.style.borderColor = 'rgba(244, 63, 94, 0.2)';
+
+    card.innerHTML = `
+      <input type="checkbox" class="remove-node-check" data-idx="${idx}">
+      <div class="checkbox-content">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <div class="checkbox-title" style="color: #fca5a5;">🛑 ${escapeHtml(node.name || 'Node ' + (idx + 1))} <span style="font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent-cyan);">(${escapeHtml(node.ip || '127.0.0.1')})</span></div>
+          <span style="font-size: 10px; padding: 2px 7px; border-radius: 4px; background: rgba(244,63,94,0.15); color: #f87171; border: 1px solid rgba(244,63,94,0.3);">${isLocal ? 'Local / Coordinator' : 'Remote SSH'}</span>
+        </div>
+        <div class="checkbox-desc">Decommissioning target node. Containers and assigned port bindings will be released.</div>
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function toggleSelectAllRemoveNodes(state) {
+  document.querySelectorAll('.remove-node-check').forEach(chk => chk.checked = state);
+}
+
+function checkRemoveSafetyLock() {
+  const input = document.getElementById('remove_confirm_input');
+  const btn = document.getElementById('btn_execute_remove');
+  if (!input || !btn) return;
+  const isMatch = (input.value || '').trim().toUpperCase() === 'REMOVE';
+  btn.disabled = !isMatch;
+}
+
+function logUpdate(msg, type = 'info') {
+  const logEl = document.getElementById('update_status_log');
+  if (!logEl) return;
+  const time = new Date().toLocaleTimeString();
+  let prefix = '• ';
+  if (type === 'success') prefix = '✅ ';
+  if (type === 'err') prefix = '❌ ';
+  if (type === 'warn') prefix = '⚠️ ';
+  if (type === 'step') prefix = '⚡ ';
+  logEl.innerHTML += `\\n[${time}] ${prefix}${msg}`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function logRemove(msg, type = 'info') {
+  const logEl = document.getElementById('remove_status_log');
+  if (!logEl) return;
+  const time = new Date().toLocaleTimeString();
+  let prefix = '• ';
+  if (type === 'success') prefix = '✅ ';
+  if (type === 'err') prefix = '❌ ';
+  if (type === 'warn') prefix = '⚠️ ';
+  if (type === 'step') prefix = '💥 ';
+  logEl.innerHTML += `\\n[${time}] ${prefix}${msg}`;
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+async function executeFleetUpdate() {
+  const btn = document.getElementById('btn_execute_update');
+  const chks = Array.from(document.querySelectorAll('.update-node-check:checked'));
+  if (chks.length === 0) {
+    alert("Please select at least one system to update.");
+    return;
+  }
+
+  const selectedNodes = chks.map(c => fleetNodes[parseInt(c.getAttribute('data-idx'))]).filter(Boolean);
+  const strategy = document.querySelector('input[name="update_strategy"]:checked')?.value || 'pull_recreate';
+  const enforceOrder = document.getElementById('update_enforce_order')?.checked ?? true;
+  const pruneDangling = document.getElementById('update_prune_dangling')?.checked ?? true;
+
+  btn.disabled = true;
+  const logEl = document.getElementById('update_status_log');
+  logEl.innerHTML = `[${new Date().toLocaleTimeString()}] 🚀 Initiating fleet update (${strategy}). Targets: ${selectedNodes.length} nodes...`;
+
+  try {
+    const res = await fetch('/api/fleet_update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nodes: selectedNodes,
+        strategy: strategy,
+        enforce_order: enforceOrder,
+        prune_dangling: pruneDangling,
+        form: getFormData()
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      (data.logs || []).forEach(l => logUpdate(l.msg, l.type));
+      logUpdate(`🎉 Fleet update completed successfully across all ${selectedNodes.length} systems!`, 'success');
+    } else {
+      logUpdate(`Update error: ${data.message || 'Operation failed.'}`, 'err');
+    }
+  } catch (err) {
+    logUpdate(`Network/Execution Exception: ${err.message}`, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function executeFleetRemove() {
+  const btn = document.getElementById('btn_execute_remove');
+  const input = document.getElementById('remove_confirm_input');
+  if ((input.value || '').trim().toUpperCase() !== 'REMOVE') {
+    alert("Please type REMOVE into the confirmation box to authorize teardown.");
+    return;
+  }
+
+  const chks = Array.from(document.querySelectorAll('.remove-node-check:checked'));
+  if (chks.length === 0) {
+    alert("Please select at least one system to decommission/remove.");
+    return;
+  }
+
+  const selectedNodes = chks.map(c => fleetNodes[parseInt(c.getAttribute('data-idx'))]).filter(Boolean);
+  const wipeVaults = document.getElementById('remove_opt_vaults')?.checked ?? false;
+  const removeImages = document.getElementById('remove_opt_images')?.checked ?? true;
+  const wipeConfigs = document.getElementById('remove_opt_configs')?.checked ?? false;
+
+  if (wipeVaults && !confirm("⚠️ WARNING: You have selected 'Wipe Data Vaults, DuckDB & SQLite Databases'. This will IRREVERSIBLY erase all captured telemetry, parquet vaults, and incident history on the selected systems. Continue?")) {
+    return;
+  }
+
+  btn.disabled = true;
+  const logEl = document.getElementById('remove_status_log');
+  logEl.innerHTML = `[${new Date().toLocaleTimeString()}] 🛑 Initiating decommissioning pipeline for ${selectedNodes.length} target node(s)...`;
+
+  try {
+    const res = await fetch('/api/fleet_remove', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nodes: selectedNodes,
+        wipe_vaults: wipeVaults,
+        remove_images: removeImages,
+        wipe_configs: wipeConfigs,
+        form: getFormData()
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      (data.logs || []).forEach(l => logRemove(l.msg, l.type));
+      logRemove(`🏁 Decommissioning complete for selected systems.`, 'success');
+      input.value = '';
+      checkRemoveSafetyLock();
+    } else {
+      logRemove(`Decommission error: ${data.message || 'Operation failed.'}`, 'err');
+    }
+  } catch (err) {
+    logRemove(`Network/Execution Exception: ${err.message}`, 'err');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function generateLifecycleRunbook(actionType) {
+  const nodes = (actionType === 'update')
+    ? Array.from(document.querySelectorAll('.update-node-check:checked')).map(c => fleetNodes[parseInt(c.getAttribute('data-idx'))]).filter(Boolean)
+    : Array.from(document.querySelectorAll('.remove-node-check:checked')).map(c => fleetNodes[parseInt(c.getAttribute('data-idx'))]).filter(Boolean);
+
+  if (nodes.length === 0) {
+    alert(`Please select at least one node to generate the ${actionType} command runbook.`);
+    return;
+  }
+
+  const wipeVaults = document.getElementById('remove_opt_vaults')?.checked ?? false;
+  const removeImages = document.getElementById('remove_opt_images')?.checked ?? true;
+  const wipeConfigs = document.getElementById('remove_opt_configs')?.checked ?? false;
+  const strategy = document.querySelector('input[name="update_strategy"]:checked')?.value || 'pull_recreate';
+
+  try {
+    const res = await fetch('/api/generate_lifecycle_scripts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: actionType,
+        nodes: nodes,
+        strategy: strategy,
+        wipe_vaults: wipeVaults,
+        remove_images: removeImages,
+        wipe_configs: wipeConfigs,
+        form: getFormData()
+      })
+    });
+    const data = await res.json();
+    if (data.status === 'success') {
+      // Display script in modal or prompt
+      const modal = document.createElement('div');
+      modal.className = 'modal-backdrop';
+      modal.style.display = 'flex';
+      modal.innerHTML = `
+        <div class="modal-card" style="max-width: 850px; max-height: 85vh; display: flex; flex-direction: column;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 style="font-size: 16px; color: #fff;">📋 Staged Command Runbook (${actionType.toUpperCase()})</h2>
+            <button class="btn btn-secondary" style="padding: 4px 10px;" onclick="this.closest('.modal-backdrop').remove()">✕ Close</button>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">
+            Execute these commands directly on each physical system in the exact order listed below. Ideal for air-gapped terminals without central SSH:
+          </p>
+          <textarea readonly style="width: 100%; flex: 1; min-height: 380px; background: #0a0e17; color: #34d399; font-family: 'JetBrains Mono', monospace; font-size: 11px; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); resize: none;">${escapeHtml(data.script || '')}</textarea>
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 14px;">
+            <button class="btn btn-cyan" onclick="navigator.clipboard.writeText(this.closest('.modal-card').querySelector('textarea').value); alert('Runbook copied to clipboard!');">📋 Copy Runbook to Clipboard</button>
+            <button class="btn btn-secondary" onclick="this.closest('.modal-backdrop').remove()">Done</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    } else {
+      alert(`Error generating script: ${data.message}`);
+    }
+  } catch (e) {
+    alert(`Failed to contact studio backend: ${e.message}`);
+  }
+}
+
 window.onload = function() {
   initRulesUI();
+  renderFleetNodes();
+  renderUpdateNodeList();
+  renderRemoveNodeList();
 };
 </script>
 </body>
@@ -1841,11 +3440,27 @@ def generate_core_compose(cfg: dict) -> str:
     t_port = cfg.get("tls_ingest_port", "1514")
     token = cfg.get("lume_token", "LAME_SECRET_TOKEN_99")
     
+    # Check if demo mode is requested
+    is_demo = False
+    if cfg.get("demo_mode"):
+        is_demo = True
+    elif cfg.get("nodes") and isinstance(cfg["nodes"], list) and len(cfg["nodes"]) > 0:
+        if cfg["nodes"][0].get("demo_mode"):
+            is_demo = True
+
     env_lines = [
         "      - PORT=9000",
         "      - PYTHONUNBUFFERED=1",
-        f"      - LUME_INGEST_TOKEN={token}"
+        f"      - LUME_INGEST_TOKEN={token}",
+        "      - LUME_DB_PATH=/app/db/project_lume.duckdb"
     ]
+    if is_demo:
+        env_lines.append("      - LUME_TRAINING_MODE=true")
+        env_lines.append("      - LUME_ENVIRONMENT=demo")
+    else:
+        env_lines.append("      - LUME_TRAINING_MODE=false")
+        env_lines.append("      - LUME_ENVIRONMENT=production")
+
     node_name = cfg.get("lume_node_name", "").strip()
     if node_name:
         env_lines.append(f"      - LUME_NODE_NAME={node_name}")
@@ -1862,6 +3477,9 @@ services:
     image: {DOCKER_IMAGES['core']}
     container_name: project-lume-core
     restart: unless-stopped
+    shm_size: "1gb"
+    cap_add:
+      - SYS_NICE
     ports:
       - "{port}:9000"
       - "{s_port}:{s_port}/udp"
@@ -1874,6 +3492,7 @@ services:
       # Allows communication with local host Ollama service
       - "host.docker.internal:host-gateway"
     volumes:
+      - lume_db:/app/db
       - ./data_vaults:/app/data_vaults
       - ./Dropzone_Inputs:/app/dropzone
       - ./web_workspaces:/app/web/workspaces
@@ -1889,6 +3508,9 @@ services:
       timeout: 5s
       retries: 3
       start_period: 15s
+
+volumes:
+  lume_db:
 """
 
 def generate_sensor_compose(cfg: dict) -> str:
@@ -1983,6 +3605,9 @@ services:
     image: {DOCKER_IMAGES['core']}
     container_name: project-lume-core
     restart: always
+    shm_size: "1gb"
+    cap_add:
+      - SYS_NICE
     ports:
       - "9000:9000"
       - "514:514/udp"
@@ -1994,7 +3619,11 @@ services:
       - PYTHONUNBUFFERED=1
       - LUME_INGEST_TOKEN={token}
       - LUME_NODE_NAME=Ubuntu Demo Node 2 (large-lume)
+      - LUME_DB_PATH=/app/db/project_lume.duckdb
+      - LUME_TRAINING_MODE=false
+      - LUME_ENVIRONMENT=production
     volumes:
+      - lume_db_15:/app/db
       - /home/lame/project_lume/data_vaults:/app/data_vaults
       - /home/lame/project_lume/Dropzone_Inputs:/app/dropzone
       - /home/lame/project_lume/web_workspaces:/app/web/workspaces
@@ -2047,10 +3676,169 @@ services:
       - trivy_cache_15:/root/.cache/trivy
 
 volumes:
+  lume_db_15:
   zeek_logs_15:
   suricata_logs_15:
   trivy_cache_15:
 """
+
+def generate_node_compose(node: dict, global_cfg: dict) -> str:
+    """
+    Generates a tailored docker-compose.yml for an arbitrary node in the fleet,
+    supporting Core SIEM, Zeek + Suricata Sensor, Trivy Vuln Scanner, and Universal Forwarder (Vector)
+    pointing to the node's assigned Target SIEM destination.
+    """
+    node_ip = node.get("ip", "127.0.0.1")
+    iface = node.get("interface") or global_cfg.get("sensor_interface", "ens160")
+    if iface == "ens160" and node_ip.endswith(".31"):
+        iface = "ens192"
+    sensor_id = global_cfg.get("sensor_id", "sensor-node-primary")
+    target_dir = global_cfg.get("scanner_target_dir", "/host")
+    interval = global_cfg.get("scanner_interval", "360")
+    severities = global_cfg.get("severities", "CRITICAL,HIGH,MEDIUM")
+    port = global_cfg.get("lume_port", "9000")
+    s_port = global_cfg.get("syslog_port", "514")
+    t_port = global_cfg.get("tls_ingest_port", "1514")
+
+    token = global_cfg.get("lume_token", "LAME_SECRET_TOKEN_99")
+    node_name = node.get("name", f"Node {node_ip}")
+    target_siem = node.get("target_siem", f"127.0.0.1:{port}")
+    if not target_siem.startswith("http://") and not target_siem.startswith("https://"):
+        target_url = f"http://{target_siem}"
+    else:
+        target_url = target_siem
+
+    services_blocks = []
+    volume_names = set()
+
+    # 1. Core SIEM
+    if node.get("deploy_core"):
+        is_demo = bool(node.get("demo_mode", False))
+        mem_cap = node.get("memory_cap") or ("12G" if "15" in node_ip else ("2600M" if "44" in node_ip else "8G"))
+        vol_db = f"lume_db_{node_ip.replace('.', '_')}"
+        volume_names.add(vol_db)
+
+        env_lines = [
+            "      - PORT=9000",
+            "      - PYTHONUNBUFFERED=1",
+            f"      - LUME_INGEST_TOKEN={token}",
+            f"      - LUME_NODE_NAME={node_name}",
+            "      - LUME_DB_PATH=/app/db/project_lume.duckdb"
+        ]
+        if is_demo:
+            env_lines.append("      - LUME_TRAINING_MODE=true")
+            env_lines.append("      - LUME_ENVIRONMENT=demo")
+        else:
+            env_lines.append("      - LUME_TRAINING_MODE=false")
+            env_lines.append("      - LUME_ENVIRONMENT=production")
+
+        env_block = "\n".join(env_lines)
+
+        services_blocks.append(f"""  project-lume-core:
+    image: {DOCKER_IMAGES['core']}
+    container_name: project-lume-core
+    restart: unless-stopped
+    shm_size: "1gb"
+    cap_add:
+      - SYS_NICE
+    ports:
+      - "{port}:9000"
+      - "{s_port}:{s_port}/udp"
+      - "{s_port}:{s_port}/tcp"
+      - "{t_port}:{t_port}/udp"
+      - "{t_port}:{t_port}/tcp"
+    environment:
+{env_block}
+    volumes:
+      - {vol_db}:/app/db
+      - ./data_vaults:/app/data_vaults
+      - ./Dropzone_Inputs:/app/dropzone
+      - ./web_workspaces:/app/web/workspaces
+    deploy:
+      resources:
+        limits:
+          memory: {mem_cap}
+        reservations:
+          memory: 1G
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+""")
+
+    # 2. Zeek + Suricata Sensor
+    if node.get("deploy_zeek"):
+        vol_z = f"zeek_logs_{node_ip.replace('.', '_')}"
+        vol_s = f"suricata_logs_{node_ip.replace('.', '_')}"
+        volume_names.add(vol_z)
+        volume_names.add(vol_s)
+        services_blocks.append(f"""  zeek-sensor-node:
+    image: {DOCKER_IMAGES['zeek']}
+    container_name: lume-zeek-sensor
+    restart: unless-stopped
+    network_mode: "host"
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+      - SYS_RAWIO
+    environment:
+      - SENSOR_INTERFACE={iface}
+      - SENSOR_ID={sensor_id}-{node_ip.split('.')[-1]}
+      - LUME_URL={target_url}
+      - LUME_TOKEN={token}
+      - LUME_NAMESPACE=default
+      - ENABLE_SURICATA=true
+      - ENABLE_SURICATA_RULES_UPDATE=true
+      - SURICATA_RULES=emerging-scada.rules,emerging-exploit.rules,emerging-current_events.rules,emerging-attack_response.rules,emerging-worm.rules,emerging-shellcode.rules,threatview_CS_c2.rules
+    volumes:
+      - {vol_z}:/var/log/zeek
+      - {vol_s}:/var/log/suricata
+""")
+
+    # 3. Host Vulnerability Scanner
+    if node.get("deploy_scanner"):
+        vol_t = f"trivy_cache_{node_ip.replace('.', '_')}"
+        volume_names.add(vol_t)
+        services_blocks.append(f"""  vuln-scanner-node:
+    image: {DOCKER_IMAGES['scanner']}
+    container_name: lume-vuln-scanner
+    restart: unless-stopped
+    environment:
+      - LUME_URL={target_url}
+      - LUME_TOKEN={token}
+      - LUME_NAMESPACE=default
+      - NODE_ID={node_name.replace(' ', '_')}
+      - TARGET_DIR={target_dir}
+      - SCAN_SEVERITY={severities}
+      - SCAN_INTERVAL_MINS={interval}
+      - RUN_ONCE=false
+    volumes:
+      - /:{target_dir}:ro
+      - {vol_t}:/root/.cache/trivy
+""")
+
+    # 4. Host OS Self-Monitoring Telemetry (Vector edge log shipper)
+    if node.get("deploy_thrower"):
+        services_blocks.append(f"""  lume-self-monitor:
+    image: timberio/vector:0.34.1-alpine
+    container_name: lume-self-monitor
+    restart: unless-stopped
+    environment:
+      - VECTOR_LOG=info
+    command: ["--config-yaml", "/etc/vector/vector.yaml"]
+    volumes:
+      - ./vector_self_monitor.yaml:/etc/vector/vector.yaml:ro
+      - /var/log:/var/log:ro
+""")
+
+    vols_section = ""
+    if volume_names:
+        vols_section = "\nvolumes:\n" + "\n".join(f"  {v}:" for v in sorted(volume_names)) + "\n"
+
+    return f"""# Project Lume Stack for Node: {node_name} ({node_ip})
+# Assigned Target SIEM: {target_url}
+# Generated by Project Lume Setup Studio on {time.strftime('%Y-%m-%d %H:%M:%S')}
+services:
+{"".join(services_blocks)}{vols_section}"""
+
 
 def generate_node44_compose(cfg: dict) -> str:
     """
@@ -2072,6 +3860,9 @@ services:
     image: {DOCKER_IMAGES['core']}
     container_name: project-lume-core
     restart: always
+    shm_size: "1gb"
+    cap_add:
+      - SYS_NICE
     ports:
       - "9000:9000"
       - "514:514/udp"
@@ -2083,7 +3874,11 @@ services:
       - PYTHONUNBUFFERED=1
       - LUME_INGEST_TOKEN={token}
       - LUME_NODE_NAME=Ubuntu Demo Node 1 (lame-lume)
+      - LUME_DB_PATH=/app/db/project_lume.duckdb
+      - LUME_TRAINING_MODE=false
+      - LUME_ENVIRONMENT=production
     volumes:
+      - lume_db_44:/app/db
       - /home/lame/project_lume/data_vaults:/app/data_vaults
       - /home/lame/project_lume/Dropzone_Inputs:/app/dropzone
       - /home/lame/project_lume/web_workspaces:/app/web/workspaces
@@ -2114,6 +3909,7 @@ services:
       - trivy_cache_44:/root/.cache/trivy
 
 volumes:
+  lume_db_44:
   trivy_cache_44:
 """
 
@@ -2329,14 +4125,26 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
                 with open(out_dir / "network_boundaries.json", "w") as f:
                     f.write(generate_network_boundaries(cfg))
 
+                # Write custom docker-compose for each configured fleet node
+                nodes_written = []
+                for node in cfg.get("nodes", []):
+                    nip = node.get("ip", "").strip()
+                    if nip:
+                        sanitized_ip = nip.replace(".", "_")
+                        fname = f"docker-compose.node-{sanitized_ip}.yml"
+                        with open(out_dir / fname, "w") as f:
+                            f.write(generate_node_compose(node, cfg))
+                        nodes_written.append(f"{node.get('name', nip)} ({fname})")
+
                 lic_content = cfg.get("lume_license_token", "").strip()
                 if lic_content:
                     with open(out_dir / "lume.lic", "w") as f:
                         f.write(lic_content + "\n")
 
+                nodes_msg = f"\nGenerated {len(nodes_written)} node compose files:\n" + "\n".join(f" • {n}" for n in nodes_written) if nodes_written else ""
                 self._send_json({
                     "status": "success",
-                    "message": f"Successfully written all deployment configurations to:\n{out_dir}\n(Includes node15/node44 compose files, core compose, .env, storage_lifecycle_policy.json, and network_boundaries.json)"
+                    "message": f"Successfully written all deployment configurations to:\n{out_dir}\n(Includes core compose, node-specific compose files, .env, storage_lifecycle_policy.json, and network_boundaries.json){nodes_msg}"
                 })
             except Exception as e:
                 self._send_json({"status": "error", "message": str(e)}, status=500)
@@ -2355,11 +4163,35 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
                     z.writestr("docker-compose.node44-vuln-scanner.yml", generate_node44_compose(cfg))
                     z.writestr("docker-compose.zeek-sensor.yml", generate_sensor_compose(cfg))
                     z.writestr("docker-compose.vuln-scanner.yml", generate_scanner_compose(cfg))
+
+                    # Dynamically add compose for each node
+                    readme_lines = [
+                        "# Project Lume Enterprise Deployment Bundle",
+                        f"Generated on {time.strftime('%Y-%m-%d %H:%M:%S')}",
+                        "",
+                        "## Fleet Node Compose Files:",
+                    ]
+                    for node in cfg.get("nodes", []):
+                        nip = node.get("ip", "").strip()
+                        if nip:
+                            sanitized_ip = nip.replace(".", "_")
+                            fname = f"docker-compose.node-{sanitized_ip}.yml"
+                            z.writestr(fname, generate_node_compose(node, cfg))
+                            readme_lines.append(f"- **{node.get('name', nip)}** ({nip}): `docker compose -f {fname} up -d`")
+
+                    readme_lines.extend([
+                        "",
+                        "## Core Stack:",
+                        "- Standard Core SIEM: `docker compose -f docker-compose.lume-core.yml up -d`",
+                        "- Node 15 All-in-One: `docker compose -f docker-compose.node15-full-sensor.yml up -d`",
+                        "- Node 44 Core + Vuln Scanner: `docker compose -f docker-compose.node44-vuln-scanner.yml up -d`"
+                    ])
+
                     z.writestr(".env", generate_env_file(cfg))
                     z.writestr("ai_config.json", generate_ai_config(cfg))
                     z.writestr("storage_lifecycle_policy.json", generate_storage_policy(cfg))
                     z.writestr("network_boundaries.json", generate_network_boundaries(cfg))
-                    z.writestr("README.md", "# Project Lume Deployment Bundle\nDeploy on Node 15 using:\ndocker compose -f docker-compose.node15-full-sensor.yml up -d\n\nDeploy on Node 44 using:\ndocker compose -f docker-compose.node44-vuln-scanner.yml up -d\n\nDeploy standard core:\ndocker compose -f docker-compose.lume-core.yml up -d\n")
+                    z.writestr("README.md", "\n".join(readme_lines) + "\n")
 
                 with open(zip_path, "rb") as f:
                     zip_bytes = f.read()
@@ -2426,7 +4258,7 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
 
                     remote_dir = f"/home/{r_user}/project_lume" if r_user != "root" else "/root/project_lume"
                     try:
-                        ssh.exec_command(f"mkdir -p {remote_dir}/data_vaults")
+                        ssh.exec_command(f"mkdir -p {remote_dir}/data_vaults {remote_dir}/Dropzone_Inputs {remote_dir}/web_workspaces 2>/dev/null; chmod -R 777 {remote_dir}/data_vaults {remote_dir}/Dropzone_Inputs {remote_dir}/web_workspaces 2>/dev/null || true")
                         with sftp.file(f"{remote_dir}/.env", "w") as f:
                             f.write(env_content)
                         with sftp.file(f"{remote_dir}/docker-compose.yml", "w") as f:
@@ -2449,6 +4281,9 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
 
                 elif action == "deploy_docker":
                     remote_dir = f"/home/{r_user}/project_lume" if r_user != "root" else "/root/project_lume"
+                    if r_host == "192.168.88.25":
+                        remote_dir = "/Users/lame/project_lume"
+
                     pull_images = [DOCKER_IMAGES['core']]
                     if r_host == "192.168.88.15":
                         pull_images.extend([DOCKER_IMAGES['zeek'], DOCKER_IMAGES['scanner']])
@@ -2475,6 +4310,328 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
                     ssh.close()
                     self._send_json({"status": "error", "message": f"Unknown remote action: {action}"})
 
+            except Exception as e:
+                self._send_json({"status": "error", "message": str(e)}, status=500)
+
+        elif url.path == "/api/orchestrate_node":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                target_node = payload.get("node_id") # e.g. "dyn_node_0" or legacy "node_24"
+                dyn_node = payload.get("node") # dynamic node object if passed
+                cfg = payload.get("form", {})
+                r_pass = cfg.get("remote_ssh_pass", "Denver#2").strip()
+
+                import urllib.request
+
+                # If dynamic node passed from modern frontend:
+                if dyn_node:
+                    n_ip = dyn_node.get("ip", "").strip()
+                    n_name = dyn_node.get("name", f"Node {n_ip}")
+                    d_core = dyn_node.get("deploy_core", False)
+                    d_zeek = dyn_node.get("deploy_zeek", False)
+                    d_scanner = dyn_node.get("deploy_scanner", False)
+                    d_thrower = dyn_node.get("deploy_thrower", False)
+                    target_siem = dyn_node.get("target_siem", "127.0.0.1:9000")
+
+                    # If this node represents local machine (127.0.0.1 or local hostname)
+                    is_local = (n_ip in ("127.0.0.1", "localhost", "0.0.0.0", "") or n_ip == "192.168.88.24")
+
+                    if is_local and d_core:
+                        res = subprocess.run("docker ps -q -f name=project-lume-core", shell=True, capture_output=True, text=True)
+                        if not res.stdout.strip():
+                            subprocess.run("docker start project-lume-core 2>nul || docker compose up -d 2>nul", shell=True)
+                    elif not is_local:
+                        try:
+                            import paramiko
+                            ssh = paramiko.SSHClient()
+                            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                            ssh.connect(n_ip, username="lame", password=r_pass, timeout=8)
+
+                            remote_dir = "/home/lame/project_lume" if n_ip != "192.168.88.25" else "/Users/lame/project_lume"
+
+                            # 1. Ensure directory structure exists and is owned with open write permissions for container UID 10001
+                            ssh.exec_command(f"mkdir -p {remote_dir}/data_vaults {remote_dir}/Dropzone_Inputs {remote_dir}/web_workspaces 2>/dev/null; chmod -R 777 {remote_dir}/data_vaults {remote_dir}/Dropzone_Inputs {remote_dir}/web_workspaces 2>/dev/null || true")
+
+                            # 2. Generate and SFTP the tailored compose and self-monitor files for this node
+                            node_compose = generate_node_compose(dyn_node, cfg)
+                            env_content = generate_env_file(cfg)
+                            sftp = ssh.open_sftp()
+                            with sftp.file(f"{remote_dir}/docker-compose.yml", "w") as f:
+                                f.write(node_compose)
+                            with sftp.file(f"{remote_dir}/.env", "w") as f:
+                                f.write(env_content)
+                            if d_thrower:
+                                token = cfg.get("lume_token", "LAME_SECRET_TOKEN_99")
+                                target_url = f"http://{target_siem}" if not target_siem.startswith("http") else target_siem
+                                self_monitor_yaml = f"""sources:
+  host_auth:
+    type: file
+    include:
+      - /var/log/auth.log
+    read_from: beginning
+  host_syslog:
+    type: file
+    include:
+      - /var/log/syslog
+    read_from: beginning
+transforms:
+  enrich_meta:
+    type: remap
+    inputs:
+      - host_auth
+      - host_syslog
+    source: |
+      .host = get_hostname!()
+      ._time = format_timestamp!(now(), "%Y-%m-%dT%H:%M:%SZ")
+      ._namespace = "default"
+      .dataset = "default"
+      msg = string!(.message)
+      if contains(string!(.file), "auth") {{
+        if contains(msg, "sshd") {{
+          .sourcetype = "linux_auth_ssh"
+        }} else if contains(msg, "sudo") {{
+          .sourcetype = "linux_auth_sudo"
+        }} else {{
+          .sourcetype = "linux_auth"
+        }}
+      }} else {{
+        .sourcetype = "linux_application"
+      }}
+sinks:
+  lume_api:
+    type: http
+    inputs:
+      - enrich_meta
+    uri: {target_url}/api/v1/ingest/raw
+    method: post
+    encoding:
+      codec: json
+    headers:
+      X-Lume-Token: "{token}"
+      X-Lume-Dataset: "default"
+"""
+                                with sftp.file(f"{remote_dir}/vector_self_monitor.yaml", "w") as f:
+                                    f.write(self_monitor_yaml)
+                            sftp.close()
+
+                            # 3. Pull required images and launch container stack!
+                            images = []
+                            if d_core: images.append(DOCKER_IMAGES["core"])
+                            if d_zeek: images.append(DOCKER_IMAGES["zeek"])
+                            if d_scanner: images.append(DOCKER_IMAGES["scanner"])
+                            if d_thrower: images.append("timberio/vector:0.34.1-alpine")
+
+                            pull_cmd = " && ".join([f"docker pull {img}" for img in images]) if images else "true"
+                            deploy_cmd = (
+                                f"cd {remote_dir} && "
+                                f"{pull_cmd} && "
+                                f"docker compose up -d --remove-orphans"
+                            )
+                            stdin, stdout, stderr = ssh.exec_command(deploy_cmd)
+                            stdout.read()  # Wait for deployment to finish!
+
+                            # 4. Verify containers running
+                            _, v_out, _ = ssh.exec_command("docker ps --format '{{.Names}}'")
+                            running_names = v_out.read().decode("utf-8").strip().splitlines()
+                            ssh.close()
+                        except Exception as ssh_err:
+                            print(f"Notice: SSH orchestration to {n_ip}: {ssh_err}")
+                            self._send_json({"status": "error", "message": f"Deployment failed on {n_ip}: {ssh_err}"}, status=500)
+                            return
+
+                    # Attempt federated registration to local Coordinator if reachable
+                    reg_payload = {
+                        "node_id": f"node_{n_ip.replace('.', '_')}",
+                        "friendly_name": n_name,
+                        "hostname": n_ip,
+                        "role": "coordinator" if (is_local and d_core) else "worker",
+                        "endpoint": f"http://{n_ip or '127.0.0.1'}:9000",
+                        "deploy_core": d_core,
+                        "deploy_zeek": d_zeek,
+                        "deploy_scanner": d_scanner,
+                        "deploy_thrower": d_thrower,
+                        "target_siem": target_siem,
+                        "aux_services": []
+                    }
+                    try:
+                        req = urllib.request.Request(
+                            "http://localhost:9000/api/cluster/nodes/register",
+                            data=json.dumps(reg_payload).encode("utf-8"),
+                            headers={"Content-Type": "application/json"}
+                        )
+                        urllib.request.urlopen(req, timeout=3)
+                    except Exception:
+                        pass
+
+                    self._send_json({
+                        "status": "success",
+                        "message": f"Successfully orchestrated and launched containers on {n_name} ({n_ip})."
+                    })
+                    return
+
+                if target_node == "node_24":
+                    # Local PC (192.168.88.24) - Ensure local container is running and register as coordinator
+                    res = subprocess.run("docker ps -q -f name=project-lume-core", shell=True, capture_output=True, text=True)
+                    if not res.stdout.strip():
+                        subprocess.run("docker start project-lume-core 2>nul || docker compose up -d 2>nul", shell=True)
+
+                    # Register / confirm local node
+                    reg_data = {
+                        "node_id": "windows_workstation",
+                        "friendly_name": cfg.get("lume_node_name", "Windows Workstation (Operations)"),
+                        "hostname": "192.168.88.24",
+                        "role": "coordinator",
+                        "endpoint": "http://192.168.88.24:9000",
+                        "deploy_core": True,
+                        "deploy_zeek": False,
+                        "deploy_scanner": False,
+                        "aux_services": []
+                    }
+                    try:
+                        req = urllib.request.Request(
+                            "http://localhost:9000/api/cluster/nodes/register",
+                            data=json.dumps(reg_data).encode("utf-8"),
+                            headers={"Content-Type": "application/json"}
+                        )
+                        urllib.request.urlopen(req, timeout=5)
+                    except Exception:
+                        pass
+
+                    self._send_json({"status": "success", "message": "Windows PC Coordinator (192.168.88.24) active and initialized."})
+                    return
+
+                # Remote nodes deployment and registration
+                remote_map = {
+                    "node_25": {
+                        "host": "192.168.88.25",
+                        "user": "lame",
+                        "name": "Macbook Pro Lab Core",
+                        "role": "worker",
+                        "vault": "/Users/lame/project_lume/data_vaults",
+                        "deploy_core": True,
+                        "deploy_zeek": False,
+                        "deploy_scanner": False,
+                        "aux": []
+                    },
+                    "node_44": {
+                        "host": "192.168.88.44",
+                        "user": "lame",
+                        "name": "Ubuntu Demo 1",
+                        "role": "worker",
+                        "vault": "/home/lame/project_lume/data_vaults",
+                        "deploy_core": True,
+                        "deploy_zeek": False,
+                        "deploy_scanner": True,
+                        "aux": ["scanner"],
+                        "scanner_info": {"container": "lume-vuln-scanner-44"}
+                    },
+                    "node_15": {
+                        "host": "192.168.88.15",
+                        "user": "lame",
+                        "name": "Ubuntu Demo 2",
+                        "role": "worker",
+                        "vault": "/home/lame/project_lume/data_vaults",
+                        "deploy_core": True,
+                        "deploy_zeek": True,
+                        "deploy_scanner": True,
+                        "aux": ["zeek", "scanner"],
+                        "zeek_info": {"container": "lume-zeek-sensor-15", "enable_suricata": True, "ot_scada_rules": True},
+                        "scanner_info": {"container": "lume-vuln-scanner-15"}
+                    }
+                }
+
+                if target_node not in remote_map:
+                    self._send_json({"status": "error", "message": f"Unknown target node: {target_node}"}, status=400)
+                    return
+
+                ninfo = remote_map[target_node]
+                r_host = ninfo["host"]
+                r_user = ninfo["user"]
+                r_name = ninfo["name"]
+
+                try:
+                    import paramiko
+                    ssh = paramiko.SSHClient()
+                    ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                    ssh.connect(r_host, username=r_user, password=r_pass, timeout=8)
+
+                    # Launch core SIEM container if not already running
+                    vault = ninfo["vault"]
+                    mem_flag = "--memory 16g" if r_host == "192.168.88.25" else ("--memory 2600m" if r_host == "192.168.88.44" else "--memory 12g")
+                    
+                    # Ensure directory exists
+                    ssh.exec_command(f"mkdir -p {vault}/parquet_archive {vault}/duckdb_temp 2>/dev/null || true")
+
+                    # Check if core container is running
+                    s_in, s_out, s_err = ssh.exec_command("docker ps -q -f name=project-lume-core")
+                    if not s_out.read().decode().strip():
+                        run_core = (
+                            f"docker run -d --name project-lume-core "
+                            f"-p 9000:9000 -p 514:514/udp -p 514:514/tcp -p 1514:1514/udp -p 1514:1514/tcp "
+                            f"-v \"{vault}:/app/data_vaults\" "
+                            f"{mem_flag} --restart always "
+                            f"{DOCKER_IMAGES['core']}"
+                        )
+                        ssh.exec_command(run_core)
+
+                    # Launch Zeek if target is 15
+                    if ninfo.get("deploy_zeek"):
+                        s_in, s_out, s_err = ssh.exec_command("docker ps -q -f name=lume-zeek-sensor-15")
+                        if not s_out.read().decode().strip():
+                            zeek_run = (
+                                f"docker run -d --name lume-zeek-sensor-15 "
+                                f"--restart unless-stopped --net host "
+                                f"--cap-add NET_ADMIN --cap-add NET_RAW --cap-add SYS_RAWIO "
+                                f"-v /etc/localtime:/etc/localtime:ro "
+                                f"{DOCKER_IMAGES['zeek']}"
+                            )
+                            ssh.exec_command(zeek_run)
+
+                    # Launch Scanner if target is 44 or 15
+                    if ninfo.get("deploy_scanner"):
+                        sc_name = f"lume-vuln-scanner-{r_host.split('.')[-1]}"
+                        s_in, s_out, s_err = ssh.exec_command(f"docker ps -q -f name={sc_name}")
+                        if not s_out.read().decode().strip():
+                            scanner_run = (
+                                f"docker run -d --name {sc_name} "
+                                f"--restart unless-stopped "
+                                f"-v /var/run/docker.sock:/var/run/docker.sock:ro -v /:/host:ro "
+                                f"{DOCKER_IMAGES['scanner']}"
+                            )
+                            ssh.exec_command(scanner_run)
+
+                    ssh.close()
+                except Exception as ssh_err:
+                    print(f"Notice: SSH orchestration to {r_host}: {ssh_err}")
+
+                # Register this node in the PC Coordinator so it immediately shows up on Cluster Topology
+                reg_payload = {
+                    "node_id": target_node.replace("node_", "worker_node_") if target_node != "node_25" else "macbook_pro",
+                    "friendly_name": r_name,
+                    "hostname": r_host,
+                    "role": ninfo["role"],
+                    "endpoint": f"http://{r_host}:9000",
+                    "deploy_core": ninfo.get("deploy_core", True),
+                    "deploy_zeek": ninfo.get("deploy_zeek", False),
+                    "deploy_scanner": ninfo.get("deploy_scanner", False),
+                    "aux_services": ninfo.get("aux", []),
+                    "zeek_info": ninfo.get("zeek_info", {}),
+                    "scanner_info": ninfo.get("scanner_info", {})
+                }
+                try:
+                    req = urllib.request.Request(
+                        "http://localhost:9000/api/cluster/nodes/register",
+                        data=json.dumps(reg_payload).encode("utf-8"),
+                        headers={"Content-Type": "application/json"}
+                    )
+                    urllib.request.urlopen(req, timeout=5)
+                except Exception as reg_err:
+                    print(f"Notice: Coordinator register API: {reg_err}")
+
+                self._send_json({
+                    "status": "success",
+                    "message": f"Successfully orchestrated and federated {r_name} ({r_host})!"
+                })
             except Exception as e:
                 self._send_json({"status": "error", "message": str(e)}, status=500)
 
@@ -2543,18 +4700,456 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
 
             except Exception as e:
                 self._send_json({"status": "error", "message": str(e)}, status=500)
+
+        elif url.path == "/api/fleet_update":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                nodes = payload.get("nodes", [])
+                strategy = payload.get("strategy", "pull_recreate")
+                enforce_order = payload.get("enforce_order", True)
+                prune_dangling = payload.get("prune_dangling", True)
+                cfg = payload.get("form", {})
+                r_pass = cfg.get("remote_ssh_pass", "Denver#2").strip()
+
+                logs = []
+
+                def get_order_score(n):
+                    # Splunk order of operations:
+                    # 1. Coordinator / Core SIEM
+                    # 2. Worker Cores
+                    # 3. Network Sensors (Zeek)
+                    # 4. Scanners / Edge Forwarders
+                    ip = n.get("ip", "").strip()
+                    is_coord = (ip in ("127.0.0.1", "localhost", "0.0.0.0", "192.168.88.24")) or n.get("role") == "coordinator"
+                    if is_coord and n.get("deploy_core"):
+                        return 0
+                    if n.get("deploy_core"):
+                        return 1
+                    if n.get("deploy_zeek"):
+                        return 2
+                    return 3
+
+                if enforce_order:
+                    nodes = sorted(nodes, key=get_order_score)
+
+                for idx, node in enumerate(nodes):
+                    raw_ip = (node.get("ip") or "127.0.0.1").strip()
+                    if raw_ip.startswith("1921."):
+                        raw_ip = "192." + raw_ip[5:]
+                    elif raw_ip.startswith("192168."):
+                        raw_ip = "192.168." + raw_ip[7:]
+                    n_ip = raw_ip
+
+                    n_name = node.get("name") or f"Node {n_ip}"
+                    is_local = (n_ip in ("127.0.0.1", "localhost", "0.0.0.0", "192.168.88.24"))
+
+                    images_to_update = []
+                    if node.get("deploy_core"):
+                        images_to_update.append(DOCKER_IMAGES["core"])
+                    if node.get("deploy_zeek"):
+                        images_to_update.append(DOCKER_IMAGES["zeek"])
+                    if node.get("deploy_scanner"):
+                        images_to_update.append(DOCKER_IMAGES["scanner"])
+                    if not images_to_update:
+                        images_to_update.append(DOCKER_IMAGES["core"])
+
+                    logs.append({"type": "step", "msg": f"[{idx+1}/{len(nodes)}] Commencing update on {n_name} ({n_ip})..."})
+
+                    if is_local:
+                        try:
+                            if strategy == "pull_recreate":
+                                for img in images_to_update:
+                                    logs.append({"type": "info", "msg": f"Local host: Pulling latest image layer for {img}..."})
+                                    p = subprocess.run(["docker", "pull", img], capture_output=True, text=True)
+                                    if p.returncode != 0:
+                                        logs.append({"type": "warn", "msg": f"docker pull notice: {p.stderr.strip() or p.stdout.strip()}"})
+
+                                # Generate updated compose file
+                                compose_content = generate_core_compose(cfg)
+                                compose_path = SCRIPT_DIR / "docker-compose.yml"
+                                with open(compose_path, "w", encoding="utf-8") as f:
+                                    f.write(compose_content)
+
+                                logs.append({"type": "info", "msg": f"Recreating local containers with persistent data preserved..."})
+                                p_up = subprocess.run(["docker", "compose", "up", "-d", "--remove-orphans"], cwd=str(SCRIPT_DIR), capture_output=True, text=True)
+                                if p_up.returncode == 0:
+                                    logs.append({"type": "success", "msg": f"Local stack updated and live on http://127.0.0.1:{cfg.get('lume_port', '9000')}"})
+                                else:
+                                    logs.append({"type": "err", "msg": f"Local compose up error: {p_up.stderr.strip()}"})
+
+                            elif strategy == "airgap_tars":
+                                export_dir = SCRIPT_DIR / "lume_airgap_tars"
+                                logs.append({"type": "info", "msg": f"Loading air-gap tar images from {export_dir}..."})
+                                for t_file in export_dir.glob("*.tar"):
+                                    subprocess.run(["docker", "load", "-i", str(t_file)], capture_output=True)
+                                p_up = subprocess.run(["docker", "compose", "up", "-d"], cwd=str(SCRIPT_DIR), capture_output=True, text=True)
+                                logs.append({"type": "success", "msg": f"Local stack updated via sneakernet tar archives."})
+
+                            if prune_dangling:
+                                subprocess.run(["docker", "image", "prune", "-f"], capture_output=True)
+                                logs.append({"type": "info", "msg": f"Pruned dangling docker image layers on local host."})
+
+                        except Exception as loc_err:
+                            logs.append({"type": "err", "msg": f"Local update exception: {loc_err}"})
+
+                    else:
+                        # Remote SSH update
+                        try:
+                            import paramiko
+                            ssh = paramiko.SSHClient()
+                            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                            ssh.connect(n_ip, username="lame", password=r_pass, timeout=8)
+
+                            remote_dir = "/home/lame/project_lume" if n_ip != "192.168.88.25" else "/Users/lame/project_lume"
+
+                            if strategy == "pull_recreate":
+                                pull_cmds = " && ".join([f"docker pull {img}" for img in images_to_update])
+                                update_cmd = f"cd {remote_dir} && {pull_cmds} && docker compose up -d"
+                                if prune_dangling:
+                                    update_cmd += " && docker image prune -f"
+
+                                logs.append({"type": "info", "msg": f"SSH remote pull & restart triggered on {n_ip}..."})
+                                stdin, stdout, stderr = ssh.exec_command(update_cmd)
+                                out = stdout.read().decode("utf-8", "replace").strip()
+                                err = stderr.read().decode("utf-8", "replace").strip()
+                                ssh.close()
+                                logs.append({"type": "success", "msg": f"{n_name} ({n_ip}) upgraded successfully. Logs: {out[:140] or err[:140] or 'Clean restart'}"})
+
+                            elif strategy == "airgap_tars":
+                                load_cmd = f"cd {remote_dir} && for t in lume_airgap_tars/*.tar; do [ -f \"$t\" ] && docker load -i \"$t\"; done && docker compose up -d"
+                                stdin, stdout, stderr = ssh.exec_command(load_cmd)
+                                out = stdout.read().decode("utf-8", "replace").strip()
+                                ssh.close()
+                                logs.append({"type": "success", "msg": f"{n_name} ({n_ip}) upgraded from remote air-gap tars."})
+
+                        except Exception as ssh_err:
+                            logs.append({"type": "err", "msg": f"SSH update failed for {n_name} ({n_ip}): {ssh_err}"})
+
+                self._send_json({"status": "success", "logs": logs})
+            except Exception as e:
+                self._send_json({"status": "error", "message": str(e)}, status=500)
+
+        elif url.path == "/api/fleet_remove":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                nodes = payload.get("nodes", [])
+                wipe_vaults = payload.get("wipe_vaults", False)
+                remove_images = payload.get("remove_images", True)
+                wipe_configs = payload.get("wipe_configs", False)
+                cfg = payload.get("form", {})
+                r_pass = cfg.get("remote_ssh_pass", "Denver#2").strip()
+
+                logs = []
+                for idx, node in enumerate(nodes):
+                    raw_ip = (node.get("ip") or "127.0.0.1").strip()
+                    # Defensive normalization: fix common double-keystroke typos like 1921.68 -> 192.168
+                    if raw_ip.startswith("1921."):
+                        raw_ip = "192." + raw_ip[5:]
+                    elif raw_ip.startswith("192168."):
+                        raw_ip = "192.168." + raw_ip[7:]
+                    n_ip = raw_ip
+
+                    n_name = node.get("name") or f"Node {n_ip}"
+                    is_local = (n_ip in ("127.0.0.1", "localhost", "0.0.0.0", "192.168.88.24"))
+
+                    logs.append({"type": "step", "msg": f"[{idx+1}/{len(nodes)}] Decommissioning {n_name} ({n_ip})..."})
+
+                    if is_local:
+                        try:
+                            # 1. Check if docker is installed locally
+                            docker_installed = (shutil.which("docker") is not None)
+                            if not docker_installed:
+                                logs.append({"type": "info", "msg": "Local host: Docker CLI not found. Skipping container/image operations."})
+                            else:
+                                logs.append({"type": "info", "msg": "Stopping and removing local containers & docker networks..."})
+                                subprocess.run(["docker", "compose", "down", "--volumes", "--remove-orphans"], cwd=str(SCRIPT_DIR), capture_output=True)
+
+                                if remove_images:
+                                    for k, img in DOCKER_IMAGES.items():
+                                        # Only delete if image exists
+                                        chk_img = subprocess.run(["docker", "image", "inspect", img], capture_output=True, text=True)
+                                        if chk_img.returncode == 0:
+                                            subprocess.run(["docker", "rmi", "-f", img], capture_output=True)
+                                            logs.append({"type": "info", "msg": f"Removed image {img} from local host cache."})
+                                        else:
+                                            logs.append({"type": "info", "msg": f"Image {img} was not present locally. Skipped."})
+
+                            # 2. Wipe Data Vaults
+                            if wipe_vaults:
+                                v_dir = SCRIPT_DIR / "data_vaults"
+                                if v_dir.exists():
+                                    shutil.rmtree(v_dir, ignore_errors=True)
+                                    v_dir.mkdir(parents=True, exist_ok=True)
+                                    logs.append({"type": "warn", "msg": f"Wiped local data vaults & DuckDB/SQLite databases in {v_dir}"})
+                                else:
+                                    logs.append({"type": "info", "msg": "Local data_vaults directory did not exist. Skipped."})
+
+                            # 3. Wipe Configs
+                            if wipe_configs:
+                                removed_cfg = []
+                                for f_name in [".env", "docker-compose.yml", "ai_config.json"]:
+                                    p = SCRIPT_DIR / f_name
+                                    if p.exists():
+                                        try:
+                                            p.unlink()
+                                            removed_cfg.append(f_name)
+                                        except Exception:
+                                            pass
+                                logs.append({"type": "info", "msg": f"Removed local configs: {', '.join(removed_cfg) if removed_cfg else 'None present'}"})
+
+                            logs.append({"type": "success", "msg": f"Local host decommissioned cleanly."})
+                        except Exception as loc_err:
+                            logs.append({"type": "err", "msg": f"Local decommission notice: {loc_err}"})
+
+                    else:
+                        # Remote SSH decommission
+                        try:
+                            import paramiko
+                            ssh = paramiko.SSHClient()
+                            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                            try:
+                                ssh.connect(n_ip, username="lame", password=r_pass, timeout=6)
+                            except Exception as conn_err:
+                                logs.append({"type": "warn", "msg": f"Could not reach {n_name} ({n_ip}): {conn_err}. Remote host is offline or unreachable."})
+                                continue
+
+                            remote_dir = "/home/lame/project_lume" if n_ip != "192.168.88.25" else "/Users/lame/project_lume"
+
+                            # Probe if docker is installed on remote host
+                            stdin, stdout, stderr = ssh.exec_command("which docker 2>/dev/null || true")
+                            has_docker = bool(stdout.read().decode("utf-8").strip())
+
+                            if has_docker:
+                                logs.append({"type": "info", "msg": f"Stopping and removing all Lume containers on {n_ip}..."})
+                                # Comprehensive container teardown:
+                                # 1. Compose down if docker-compose exists
+                                # 2. Explicit stop & rm of project-lume-core, zeek, and vuln scanner
+                                # 3. Dynamic filter rm of all matching lume* containers
+                                teardown_cmds = [
+                                    f"echo '{r_pass}' | sudo -S docker compose -f {remote_dir}/docker-compose.yml down --volumes --remove-orphans 2>/dev/null || true",
+                                    f"echo '{r_pass}' | sudo -S docker stop project-lume-core project-lume lume-zeek-sensor-15 lume-zeek-sensor-primary lume-vuln-scanner-15 lume-vuln-scanner-44 lume-vuln-scanner-primary 2>/dev/null || true",
+                                    f"echo '{r_pass}' | sudo -S docker rm -f project-lume-core project-lume lume-zeek-sensor-15 lume-zeek-sensor-primary lume-vuln-scanner-15 lume-vuln-scanner-44 lume-vuln-scanner-primary 2>/dev/null || true",
+                                    f"echo '{r_pass}' | sudo -S docker ps -a --filter name=lume -q | xargs -r sudo docker rm -f 2>/dev/null || true"
+                                ]
+                                if remove_images:
+                                    img_str = " ".join(DOCKER_IMAGES.values())
+                                    teardown_cmds.append(f"echo '{r_pass}' | sudo -S docker rmi -f {img_str} 2>/dev/null || true")
+                                    teardown_cmds.append(f"echo '{r_pass}' | sudo -S docker image prune -f 2>/dev/null || true")
+
+                                stdin, stdout, stderr = ssh.exec_command(" ; ".join(teardown_cmds))
+                                stdout.read()  # Block until teardown finishes!
+
+                                # Verify containers are gone
+                                _, v_out, _ = ssh.exec_command("docker ps -q --filter name=lume")
+                                remaining = v_out.read().decode("utf-8").strip()
+                                if remaining:
+                                    logs.append({"type": "warn", "msg": f"Notice on {n_ip}: Containers still active: {remaining}"})
+                                else:
+                                    logs.append({"type": "info", "msg": f"Verified: All Lume containers stopped and removed on {n_ip}."})
+                            else:
+                                logs.append({"type": "info", "msg": f"Notice: Docker is not installed on {n_ip}. Skipping docker cleanup."})
+
+                            if wipe_vaults:
+                                # Vaults may have root-owned files from Docker mounts, so use sudo
+                                wipe_vault_cmd = f"echo '{r_pass}' | sudo -S rm -rf {remote_dir}/data_vaults/* 2>/dev/null || rm -rf {remote_dir}/data_vaults/* 2>/dev/null || true"
+                                stdin, stdout, stderr = ssh.exec_command(wipe_vault_cmd)
+                                stdout.read()
+                                logs.append({"type": "warn", "msg": f"Wiped remote data vaults on {n_ip}."})
+
+                            if wipe_configs:
+                                wipe_cfg_cmd = f"rm -f {remote_dir}/.env {remote_dir}/docker-compose.yml {remote_dir}/data_vaults/*.json 2>/dev/null || true"
+                                stdin, stdout, stderr = ssh.exec_command(wipe_cfg_cmd)
+                                stdout.read()
+                                logs.append({"type": "info", "msg": f"Removed configuration files on {n_ip}."})
+
+                            ssh.close()
+                            logs.append({"type": "success", "msg": f"{n_name} ({n_ip}) decommissioned cleanly over SSH."})
+
+                        except Exception as ssh_err:
+                            logs.append({"type": "err", "msg": f"SSH teardown notice for {n_name} ({n_ip}): {ssh_err}"})
+
+                self._send_json({"status": "success", "logs": logs})
+            except Exception as e:
+                self._send_json({"status": "error", "message": str(e)}, status=500)
+
+        elif url.path == "/api/preflight_probe":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                nodes = payload.get("nodes", [])
+                cfg = payload.get("form", {})
+                r_pass = cfg.get("remote_ssh_pass", "Denver#2").strip()
+
+                results = []
+                for node in nodes:
+                    raw_ip = (node.get("ip") or "127.0.0.1").strip()
+                    if raw_ip.startswith("1921."):
+                        raw_ip = "192." + raw_ip[5:]
+                    elif raw_ip.startswith("192168."):
+                        raw_ip = "192.168." + raw_ip[7:]
+                    nip = raw_ip
+                    nname = node.get("name") or f"Node {nip}"
+                    is_local = (nip in ("127.0.0.1", "localhost", "0.0.0.0", "192.168.88.24"))
+
+                    item = {
+                        "ip": nip,
+                        "name": nname,
+                        "is_local": is_local,
+                        "reachable": False,
+                        "docker_installed": False,
+                        "existing_containers": [],
+                        "ports_busy": []
+                    }
+
+                    if is_local:
+                        item["reachable"] = True
+                        item["docker_installed"] = (shutil.which("docker") is not None)
+                        if item["docker_installed"]:
+                            try:
+                                res = subprocess.run(
+                                    ["docker", "ps", "-a", "--filter", "name=lume", "--format", "{{.Names}}"],
+                                    capture_output=True, text=True
+                                )
+                                c_list = [c.strip() for c in res.stdout.splitlines() if c.strip()]
+                                item["existing_containers"] = c_list
+                            except Exception:
+                                pass
+                    else:
+                        try:
+                            import paramiko
+                            ssh = paramiko.SSHClient()
+                            ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+                            ssh.connect(nip, username="lame", password=r_pass, timeout=4)
+                            item["reachable"] = True
+
+                            # Check docker binary
+                            stdin, stdout, stderr = ssh.exec_command("which docker 2>/dev/null || true")
+                            item["docker_installed"] = bool(stdout.read().decode("utf-8").strip())
+
+                            if item["docker_installed"]:
+                                stdin, stdout, stderr = ssh.exec_command("docker ps -a --filter name=lume --format '{{.Names}}' 2>/dev/null || true")
+                                c_list = [c.strip() for c in stdout.read().decode("utf-8").splitlines() if c.strip()]
+                                item["existing_containers"] = c_list
+
+                            ssh.close()
+                        except Exception:
+                            item["reachable"] = False
+
+                    results.append(item)
+
+                self._send_json({"status": "success", "results": results})
+            except Exception as e:
+                self._send_json({"status": "error", "message": str(e)}, status=500)
+
+        elif url.path == "/api/generate_lifecycle_scripts":
+            try:
+                payload = json.loads(post_body.decode("utf-8"))
+                action = payload.get("action", "update")
+                nodes = payload.get("nodes", [])
+                strategy = payload.get("strategy", "pull_recreate")
+                wipe_vaults = payload.get("wipe_vaults", False)
+                remove_images = payload.get("remove_images", True)
+                wipe_configs = payload.get("wipe_configs", False)
+
+                script_lines = [
+                    f"#!/usr/bin/env bash",
+                    f"# ==============================================================================",
+                    f"# PROJECT LUME STAGED LIFECYCLE RUNBOOK: {action.upper()}",
+                    f"# Generated on: {time.strftime('%Y-%m-%d %H:%M:%S')}",
+                    f"# ==============================================================================",
+                    f"# Order of Operations follows strict SIEM dependency hierarchy:",
+                    f"# 1. Coordinator Core SIEM -> 2. Workers -> 3. Network Sensors -> 4. Scanners",
+                    f"# ==============================================================================",
+                    ""
+                ]
+
+                # Splunk order sorting
+                def get_order_score(n):
+                    ip = n.get("ip", "").strip()
+                    is_coord = (ip in ("127.0.0.1", "localhost", "0.0.0.0", "192.168.88.24")) or n.get("role") == "coordinator"
+                    if is_coord and n.get("deploy_core"):
+                        return 0
+                    if n.get("deploy_core"):
+                        return 1
+                    if n.get("deploy_zeek"):
+                        return 2
+                    return 3
+
+                sorted_nodes = sorted(nodes, key=get_order_score)
+
+                for idx, node in enumerate(sorted_nodes):
+                    nip = (node.get("ip") or "127.0.0.1").strip()
+                    nname = node.get("name") or f"Node {nip}"
+                    target_dir = f"/home/lame/project_lume" if nip != "192.168.88.25" else "/Users/lame/project_lume"
+
+                    script_lines.append(f"# ------------------------------------------------------------------------------")
+                    script_lines.append(f"# STEP {idx+1}: {nname} ({nip})")
+                    script_lines.append(f"# ------------------------------------------------------------------------------")
+                    script_lines.append(f"echo '>>> [Step {idx+1}/{len(sorted_nodes)}] Processing {nname} ({nip})...'")
+                    script_lines.append(f"cd {target_dir} || exit 1")
+
+                    if action == "update":
+                        if strategy == "pull_recreate":
+                            if node.get("deploy_core"):
+                                script_lines.append(f"docker pull {DOCKER_IMAGES['core']}")
+                            if node.get("deploy_zeek"):
+                                script_lines.append(f"docker pull {DOCKER_IMAGES['zeek']}")
+                            if node.get("deploy_scanner"):
+                                script_lines.append(f"docker pull {DOCKER_IMAGES['scanner']}")
+                            script_lines.append(f"docker compose up -d --remove-orphans")
+                            script_lines.append(f"docker image prune -f")
+                        elif strategy == "airgap_tars":
+                            script_lines.append(f"for t in lume_airgap_tars/*.tar; do [ -f \"$t\" ] && docker load -i \"$t\"; done")
+                            script_lines.append(f"docker compose up -d --remove-orphans")
+
+                    elif action == "remove":
+                        script_lines.append(f"# 1. Stop and remove containers")
+                        script_lines.append(f"docker compose down --volumes --remove-orphans")
+                        if remove_images:
+                            script_lines.append(f"# 2. Free image layer disk storage")
+                            script_lines.append(f"docker rmi -f {' '.join(DOCKER_IMAGES.values())} 2>/dev/null || true")
+                        if wipe_vaults:
+                            script_lines.append(f"# 3. IRREVERSIBLE: Wipe data vaults & databases")
+                            script_lines.append(f"rm -rf ./data_vaults/*")
+                        if wipe_configs:
+                            script_lines.append(f"# 4. Wipe configuration files")
+                            script_lines.append(f"rm -f .env docker-compose.yml data_vaults/*.json")
+
+                    script_lines.append(f"echo '>>> {nname} completed.'")
+                    script_lines.append("")
+
+                script_lines.append(f"echo '=============================================================================='")
+                script_lines.append(f"echo '🎉 ALL {len(sorted_nodes)} SYSTEMS PROCESSED IN SPECIFIED DEPENDENCY ORDER.'")
+                script_lines.append(f"echo '=============================================================================='")
+
+                self._send_json({"status": "success", "script": "\n".join(script_lines)})
+            except Exception as e:
+                self._send_json({"status": "error", "message": str(e)}, status=500)
         else:
             self.send_response(404)
             self.end_headers()
 
 def run_server(port=DEFAULT_PORT, open_browser=True):
-    server = HTTPServer(("0.0.0.0", port), SetupStudioHandler)
-    url = f"http://localhost:{port}"
+    actual_port = port
+    server = None
+    for attempt in range(10):
+        try:
+            server = HTTPServer(("0.0.0.0", actual_port), SetupStudioHandler)
+            break
+        except OSError as e:
+            # Address already in use (e.g. Docker container or previous instance running)
+            print(f"[!] Notice: Port {actual_port} is busy. Trying port {actual_port + 1}...")
+            actual_port += 1
+
+    if not server:
+        print(f"[ERROR] Could not bind HTTP server on ports {port} through {actual_port - 1}.")
+        return
+
+    url = f"http://localhost:{actual_port}"
     print("=" * 75)
     print("⚡ PROJECT LUME - UNIVERSAL SETUP & DEPLOYMENT STUDIO")
     print("=" * 75)
     print(f"🚀 Server is live at: {url}")
-    print(f"   Network Access  : http://<this-machine-ip>:{port}")
+    print(f"   Network Access  : http://<this-machine-ip>:{actual_port}")
     print("   Press CTRL+C to stop the studio.")
     print("=" * 75)
 

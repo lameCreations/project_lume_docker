@@ -3,20 +3,37 @@ services:
     image: lamecreations/project_lume:latest
     container_name: project-lume-core
     restart: unless-stopped
+    shm_size: "1gb"
+    cap_add:
+      - SYS_NICE
     ports:
       - "9000:9000"
       - "514:514/udp"
       - "514:514/tcp"
       - "1514:1514/udp"
       - "1514:1514/tcp"
+      - "5514:5514/udp"
+      - "5515:5515"
+      - "6100:6100"
+      - "8687:8687"
+      - "8088:8088"
+      - "6514:6514"
     environment:
       - PORT=9000
       - PYTHONUNBUFFERED=1
+      - PYTHONFAULTHANDLER=1
+      # DuckDB database file
+      - LUME_DB_PATH=/app/db/project_lume.duckdb
     extra_hosts:
       - "host.docker.internal:host-gateway"
     volumes:
-      - lume_vaults:/app/data_vaults
+      # Container-local DuckDB database (avoids host filesystem locks)
+      - lume_db:/app/db
+      # Persistent configuration, playbooks, and slices
+      - ./data_vaults:/app/data_vaults
+      # Smart Dropzone Mount for immediate log / data cartridge ingestion
       - ./Dropzone_Inputs:/app/dropzone
+      # Network profile maps and analyst workspace reports
       - ./web_workspaces:/app/web/workspaces
     healthcheck:
       test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:9000/api/settings/health')"]
@@ -26,4 +43,4 @@ services:
       start_period: 20s
 
 volumes:
-  lume_vaults:
+  lume_db:
