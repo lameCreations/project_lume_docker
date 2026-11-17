@@ -3702,8 +3702,11 @@ def generate_node_compose(node: dict, global_cfg: dict) -> str:
 
     token = global_cfg.get("lume_token", "LAME_SECRET_TOKEN_99")
     node_name = node.get("name", f"Node {node_ip}")
+    has_local_core = bool(node.get("deploy_core"))
     target_siem = node.get("target_siem", f"127.0.0.1:{port}")
-    if not target_siem.startswith("http://") and not target_siem.startswith("https://"):
+    if has_local_core and (not target_siem or target_siem.startswith("127.0.0.1") or target_siem.startswith(node_ip)):
+        target_url = "http://project-lume-core:9000"
+    elif not target_siem.startswith("http://") and not target_siem.startswith("https://"):
         target_url = f"http://{target_siem}"
     else:
         target_url = target_siem
@@ -4362,7 +4365,11 @@ class SetupStudioHandler(BaseHTTPRequestHandler):
                                 f.write(env_content)
                             if d_thrower:
                                 token = cfg.get("lume_token", "LAME_SECRET_TOKEN_99")
-                                target_url = f"http://{target_siem}" if not target_siem.startswith("http") else target_siem
+                                # If this node runs Core SIEM, vector self-monitor should target its local container project-lume-core
+                                if d_core:
+                                    target_url = "http://project-lume-core:9000"
+                                else:
+                                    target_url = f"http://{target_siem}" if not target_siem.startswith("http") else target_siem
                                 self_monitor_yaml = f"""sources:
   host_auth:
     type: file
